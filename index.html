@@ -30,6 +30,9 @@
                 text-align: right;
             }
             header h1 {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-evenly;
                 font-size: 1rem;
                 margin: 0;
             }
@@ -119,7 +122,9 @@
     <body>
         <header>
             <div>&nbsp;</div>
-            <h1>P E E - D E E - E F F</h1>
+            <h1 id="hamburger" title="🍔 toggle controlz">
+                P E E - D E E - E F F
+            </h1>
         </header>
         <main>
             <pee-dee-eff
@@ -141,7 +146,7 @@
                 </div>
             </pee-dee-eff>
 
-            <nav>
+            <nav id="nav">
                 <h2>controlz</h2>
                 <form id="peedeeeffForm">
                     <label>
@@ -220,6 +225,14 @@
             >
         </footer>
         <script>
+            const hamburger = document.getElementById("hamburger");
+            const nav = document.getElementById("nav");
+            let hidden = false;
+            hamburger.addEventListener("click", () => {
+                nav.style.display = hidden ? "block" : "none";
+                hidden = !hidden;
+            });
+
             const form = document.getElementById("peedeeeffForm");
             window.peedeeeff = document.getElementById("peedeeeff");
 
