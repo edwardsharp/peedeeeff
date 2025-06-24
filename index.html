@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>PEE-DEE-EFF</title>
+        <style>
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: sans-serif;
+                height: 100%;
+                background: black;
+                color: white;
+            }
+            header {
+                text-align: center;
+            }
+            footer {
+                text-align: right;
+            }
+            header h1 {
+                font-size: 1rem;
+                margin: 0;
+            }
+            header,
+            footer {
+                height: 2.5rem;
+                display: flex;
+                align-content: center;
+            }
+
+            header div,
+            footer div {
+                flex-grow: 1;
+            }
+            header h1,
+            footer b {
+                background: magenta;
+                color: black;
+                height: 100%;
+                display: block;
+                line-height: 2.5rem;
+                width: 220px;
+                padding-right: 1rem;
+                box-sizing: border-box;
+            }
+            footer b {
+                font-size: 0.75em;
+                font-weight: 100;
+                /* kinda ironic for a <b/> 🤷 */
+            }
+            body {
+                display: flex;
+                flex-direction: column;
+                height: 100dvh;
+            }
+            main {
+                display: flex;
+                flex: 1;
+                overflow: hidden;
+            }
+            nav {
+                width: 220px;
+                min-width: 220px;
+                max-width: 220px;
+                box-sizing: border-box;
+                overflow-y: auto;
+            }
+            nav h2 {
+                padding: 0 1rem;
+                font-size: 1.25rem;
+            }
+            nav em {
+                font-size: 0.75rem;
+                display: block;
+                padding: 0.5rem 0px;
+            }
+            nav label {
+                border-bottom: thick solid magenta;
+                padding: 0 1rem;
+            }
+            nav label:last-of-type {
+                border-bottom: none;
+            }
+            main > webp-peedeeeff {
+                flex: 1;
+                height: 100%;
+            }
+            .scroll-message {
+                font-size: 2rem;
+                background: white;
+                color: black;
+                z-index: 1;
+            }
+            form label {
+                display: block;
+                margin-top: 1rem;
+            }
+            form input[type="text"],
+            form input[type="number"] {
+                width: 100%;
+                padding: 0.25rem;
+                margin-top: 0.25rem;
+                box-sizing: border-box;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div>&nbsp;</div>
+            <h1>P E E - D E E - E F F</h1>
+        </header>
+        <main>
+            <pee-dee-eff
+                id="peedeeeff"
+                last-page="6"
+                base-path="example/undoinganddoing"
+                loop="false"
+                background="white"
+                single-boundary="false"
+                scroll-mode="false"
+                horizontal-scroll-mode="false"
+            >
+                <div
+                    class="scroll-message"
+                    slot="scroll-message"
+                    title="i'm scrollin' ovah heeeere!"
+                >
+                    scroll down 👇
+                </div>
+            </pee-dee-eff>
+
+            <nav>
+                <h2>controls</h2>
+                <form id="peedeeeffForm">
+                    <label>
+                        base-path
+                        <input
+                            type="text"
+                            name="base-path"
+                            value="gen/disinformation"
+                        />
+                        <em
+                            >base path to webp files named like
+                            page-000.webp</em
+                        >
+                    </label>
+
+                    <label>
+                        last-page
+                        <input
+                            type="number"
+                            name="last-page"
+                            value="11"
+                            min="0"
+                        />
+                        <em>total page range (the last page-XX.webp file)</em>
+                    </label>
+
+                    <label>
+                        <input type="checkbox" name="loop" /> loop
+
+                        <em
+                            >if horizontal scroll, will loop start and end</em
+                        ></label
+                    >
+
+                    <label>
+                        <input type="checkbox" name="single-boundary" />
+                        single-boundary
+                        <em
+                            >1 up display of first and last page, all other are
+                            2 up</em
+                        >
+                    </label>
+
+                    <label>
+                        <input type="checkbox" name="scroll-mode" /> vertical
+                        scroll
+                        <em
+                            >vertical scroll (disables horizontal scroll
+                            mode)</em
+                        >
+                    </label>
+
+                    <label>
+                        <input type="checkbox" name="horizontal-scroll-mode" />
+                        horizontal scroll
+                        <em
+                            >horizontal scroll (doesn't use prev/next page
+                            buttons)</em
+                        >
+                    </label>
+
+                    <label>
+                        background
+                        <input type="text" name="background" value="white" />
+                        <em>background color behind webp images</em>
+                    </label>
+                </form>
+            </nav>
+        </main>
+        <footer>
+            <div>&nbsp;</div>
+            <b>made with 💖 in nyc</b>
+        </footer>
+        <script>
+            const form = document.getElementById("peedeeeffForm");
+            window.peedeeeff = document.getElementById("peedeeeff");
+
+            const props = [
+                "base-path",
+                "last-page",
+                "loop",
+                "single-boundary",
+                "scroll-mode",
+                "horizontal-scroll-mode",
+                "background",
+            ];
+
+            props.forEach((prop) => {
+                const input = form.elements[prop];
+                if (!input) return;
+
+                input.addEventListener("input", () =>
+                    updatepeedeeeff(prop, input),
+                );
+                input.addEventListener("change", () =>
+                    updatepeedeeeff(prop, input),
+                );
+            });
+
+            function updatepeedeeeff(prop, input) {
+                if (input.type === "checkbox") {
+                    if (input.checked) {
+                        window.peedeeeff.setAttribute(prop, "true");
+                    } else {
+                        window.peedeeeff.removeAttribute(prop);
+                    }
+                } else {
+                    window.peedeeeff.setAttribute(prop, input.value);
+                }
+
+                const newpeedeeeff = window.peedeeeff.cloneNode(true);
+                window.peedeeeff.replaceWith(newpeedeeeff);
+                newpeedeeeff.id = "peedeeeff";
+                window.peedeeeff = newpeedeeeff;
+
+                syncControlStates();
+            }
+
+            function syncControlStates() {
+                const scrollMode = form.elements["scroll-mode"].checked;
+                const hScrollMode =
+                    form.elements["horizontal-scroll-mode"].checked;
+
+                form.elements["scroll-mode"].disabled = hScrollMode;
+                form.elements["horizontal-scroll-mode"].disabled = scrollMode;
+
+                // Example: disable loop when scroll is vertical or horizontal scroll is active
+                const loop = form.elements["loop"];
+                loop.disabled = scrollMode || hScrollMode;
+            }
+
+            syncControlStates();
+        </script>
+        <script src="peedeeeff.js"></script>
+    </body>
+</html>
