@@ -17,13 +17,33 @@
             a,
             a:link,
             a:visited,
-            a:active {
+            a:active,
+            button {
                 color: black;
+                background: magenta;
+                border: none;
+                padding: 0.25rem;
+                margin: 0.25rem;
             }
-            a:hover {
-                color: white;
+            a:hover,
+            button:hover,
+            #hamburger:hover {
+                background: black;
+                color: magenta;
+                cursor: pointer;
+            }
+
+            button:hover {
+                background: black;
+                color: magenta;
+                cursor: pointer;
             }
             header {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 220px;
+                z-index: 2;
                 text-align: center;
             }
             footer {
@@ -45,7 +65,7 @@
             }
             header,
             footer {
-                height: 2.5rem;
+                height: 3rem;
                 display: flex;
                 align-content: center;
             }
@@ -75,11 +95,14 @@
                 overflow: hidden;
             }
             nav {
+                margin-top: 3rem;
                 width: 220px;
                 min-width: 220px;
                 max-width: 220px;
                 box-sizing: border-box;
                 overflow-y: auto;
+                display: flex;
+                flex-direction: column;
             }
             nav h2 {
                 padding: 0 1rem;
@@ -97,23 +120,20 @@
             #toggle-controlz-wrapper {
                 padding: 1rem;
             }
+            #hamburger {
+                border: thick solid transparent;
+            }
             #hamburger:hover {
                 cursor: context-menu;
+                text-decoration: underline;
+                border: thick solid magenta;
             }
             #madewith {
                 position: sticky;
                 bottom: 0;
-                font-size: 0.75em;
-                font-weight: 100;
-                background: magenta;
-                color: black;
+                width: 100%;
+                margin: 0rem;
                 text-align: center;
-
-                display: block;
-                line-height: 2.5rem;
-                width: 220px;
-                padding: 0.25rem 1rem;
-                box-sizing: border-box;
             }
             main > webp-peedeeeff {
                 flex: 1;
@@ -141,19 +161,11 @@
                 footer {
                     display: none;
                 }
-                header.hidden {
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    width: 200px;
-                    z-index: 2;
-                }
             }
         </style>
     </head>
     <body>
         <header id="header">
-            <div>&nbsp;</div>
             <h1 id="hamburger" title="🍔 toggle controlz">
                 P E E - D E E - E F F
             </h1>
@@ -183,11 +195,13 @@
                 <form id="peedeeeffForm">
                     <h2>controlz</h2>
                     <label class="base-path-controlz">
-                        base-path
+                        zine library
                         <select id="base-path"></select>
                         <em
-                            >base path to webp files named like
-                            page-000.webp</em
+                            >see also:
+                            <a href="http://geoz.one/" target="_blank"
+                                >geoz.one</a
+                            ></em
                         >
                     </label>
 
@@ -273,115 +287,115 @@
         <script>
             const library = [
                 ["example/undoinganddoing", 006],
-                ["geozone/disinformation", 12],
-                ["geozone/safer-without-police", 14],
-                ["geozone/otay-mountain", 40],
-                ["geozone/the-anthropussy", 16],
-                ["geozone/whirlwind-i", 18],
-                ["geozone/ruptures-i", 21],
-                ["geozone/the-anthropussy-print", 8],
-                ["geozone/garbage-gardening", 13],
-                ["geozone/strangers-print", 8],
-                ["geozone/strange-natures-print", 26],
-                ["geozone/jesters-freaks", 5],
-                ["geozone/zine-education", 32],
-                ["geozone/nyc-gentrification", 16],
-                ["geozone/ruptures-i-print", 20],
-                ["geozone/sounds-birmingham", 36],
-                ["geozone/people-ports-power-02", 56],
-                ["geozone/strange-natures", 52],
-                ["geozone/foraging-art-print", 5],
-                ["geozone/crisis-accomodation-print", 10],
-                ["geozone/mapping-customary-practices", 68],
-                ["geozone/nyc-gentrification-print", 8],
-                ["geozone/start-with-a-park-print", 1],
-                ["geozone/hiss2025-print-compressed", 16],
-                ["geozone/handford", 7],
-                ["geozone/body-territories-datafied-city", 20],
-                ["geozone/whirlwind-ii", 24],
-                ["geozone/esri", 17],
-                ["geozone/data-centres", 23],
-                ["geozone/the-words-print", 2],
-                ["geozone/black-ecologies", 64],
-                ["geozone/crisis-accomodation", 11],
-                ["geozone/mapping-sense", 8],
-                ["geozone/love-and-rage-print", 1],
-                ["geozone/villes-de-guerre-quotidienne", 38],
-                ["geozone/dumpster-stories-print", 8],
-                ["geozone/embodying-pipeline-print", 10],
-                ["geozone/energyscapes", 14],
-                ["geozone/the-paradise", 96],
-                ["geozone/tarde-01", 5],
-                ["geozone/mapping-emotions", 80],
-                ["geozone/tarde-06", 7],
-                ["geozone/memorias-espanol", 36],
-                ["geozone/alaskaland", 8],
-                ["geozone/theoretical-self-defense", 20],
-                ["geozone/heat-diary", 94],
-                ["geozone/hiss2025", 17],
-                ["geozone/garbage-gardening-print", 12],
-                ["geozone/david-goliath", 9],
-                ["geozone/the-words", 8],
-                ["geozone/strangers", 16],
-                ["geozone/zine-education-print", 49],
-                ["geozone/mais-dauntaun-1", 96],
-                ["geozone/data-centres-print", 24],
-                ["geozone/anti-ableist-university", 24],
-                ["geozone/embodying-pipeline", 20],
-                ["geozone/elc-healthcare", 15],
-                ["geozone/abolition-methodologies", 32],
-                ["geozone/taming-rivers", 9],
-                ["geozone/academic-rebellion-print", 10],
-                ["geozone/aukaat", 73],
-                ["geozone/treaty-rock", 10],
-                ["geozone/defensive-design", 18],
-                ["geozone/space-waste", 14],
-                ["geozone/transformative-housing-print", 6],
-                ["geozone/straights", 13],
-                ["geozone/staircase-oskemen", 12],
-                ["geozone/anti-ableist-university-alt-text", 9],
-                ["geozone/remember-that-girl", 9],
-                ["geozone/misoprostol-print", 12],
-                ["geozone/people-ports-power-01", 42],
-                ["geozone/sounds-wollongong", 68],
-                ["geozone/peace-stories", 36],
-                ["geozone/abolition-methodologies-print", 16],
-                ["geozone/inland-empire-waterways", 8],
-                ["geozone/energyscapes-print", 14],
-                ["geozone/militarism-climate-crisis", 28],
-                ["geozone/recuerda-esa-chica", 9],
-                ["geozone/dumpster-stories", 16],
-                ["geozone/love-and-rage", 8],
-                ["geozone/quercus", 12],
-                ["geozone/start-with-a-park", 5],
-                ["geozone/misoprostol", 7],
-                ["geozone/defensive-design-print", 18],
-                ["geozone/academic-rebellion", 19],
-                ["geozone/cities-of-banal-warfare", 38],
-                ["geozone/myron-eells", 12],
-                ["geozone/memorias-english", 36],
-                ["geozone/militarism-climate-crisis-print", 28],
-                ["geozone/foraging-art", 8],
-                ["geozone/jesters-freaks-print", 8],
-                ["geozone/got-power", 20],
-                ["geozone/love-ctrl", 11],
-                ["geozone/living-anarchy", 6],
-                ["geozone/mais-dauntaun-3", 104],
-                ["geozone/mais-dauntaun-4", 120],
-                ["geozone/tarde-05", 3],
-                ["geozone/tarde-02", 5],
-                ["geozone/gaza-academics", 3],
-                ["geozone/come-habla", 35],
-                ["geozone/rootling", 7],
-                ["geozone/transformative-housing", 12],
-                ["geozone/mapping-routes", 44],
-                ["geozone/mais-dauntaun-2", 92],
-                ["geozone/demand-the-impossible", 26],
-                ["geozone/sounds-detroit", 46],
-                ["geozone/seabed-mining", 14],
-                ["geozone/tarde-03", 5],
-                ["geozone/rootling-print", 6],
-                ["geozone/tarde-04", 7],
+                ["geozone/disinformation", 11],
+                ["geozone/safer-without-police", 13],
+                ["geozone/otay-mountain", 39],
+                ["geozone/the-anthropussy", 15],
+                ["geozone/whirlwind-i", 17],
+                ["geozone/ruptures-i", 20],
+                ["geozone/the-anthropussy-print", 7],
+                ["geozone/garbage-gardening", 12],
+                ["geozone/strangers-print", 7],
+                ["geozone/strange-natures-print", 25],
+                ["geozone/jesters-freaks", 4],
+                ["geozone/zine-education", 31],
+                ["geozone/nyc-gentrification", 15],
+                ["geozone/ruptures-i-print", 19],
+                ["geozone/sounds-birmingham", 35],
+                ["geozone/people-ports-power-02", 55],
+                ["geozone/strange-natures", 51],
+                ["geozone/foraging-art-print", 4],
+                ["geozone/crisis-accomodation-print", 9],
+                ["geozone/mapping-customary-practices", 67],
+                ["geozone/nyc-gentrification-print", 7],
+                ["geozone/start-with-a-park-print", 0],
+                ["geozone/hiss2025-print-compressed", 15],
+                ["geozone/handford", 6],
+                ["geozone/body-territories-datafied-city", 19],
+                ["geozone/whirlwind-ii", 23],
+                ["geozone/esri", 16],
+                ["geozone/data-centres", 22],
+                ["geozone/the-words-print", 1],
+                ["geozone/black-ecologies", 63],
+                ["geozone/crisis-accomodation", 10],
+                ["geozone/mapping-sense", 7],
+                ["geozone/love-and-rage-print", 0],
+                ["geozone/villes-de-guerre-quotidienne", 37],
+                ["geozone/dumpster-stories-print", 7],
+                ["geozone/embodying-pipeline-print", 9],
+                ["geozone/energyscapes", 13],
+                ["geozone/the-paradise", 95],
+                ["geozone/tarde-01", 4],
+                ["geozone/mapping-emotions", 79],
+                ["geozone/tarde-06", 6],
+                ["geozone/memorias-espanol", 35],
+                ["geozone/alaskaland", 7],
+                ["geozone/theoretical-self-defense", 19],
+                ["geozone/heat-diary", 93],
+                ["geozone/hiss2025", 16],
+                ["geozone/garbage-gardening-print", 11],
+                ["geozone/david-goliath", 8],
+                ["geozone/the-words", 7],
+                ["geozone/strangers", 15],
+                ["geozone/zine-education-print", 48],
+                ["geozone/mais-dauntaun-1", 95],
+                ["geozone/data-centres-print", 23],
+                ["geozone/anti-ableist-university", 23],
+                ["geozone/embodying-pipeline", 19],
+                ["geozone/elc-healthcare", 14],
+                ["geozone/abolition-methodologies", 31],
+                ["geozone/taming-rivers", 8],
+                ["geozone/academic-rebellion-print", 9],
+                ["geozone/aukaat", 72],
+                ["geozone/treaty-rock", 9],
+                ["geozone/defensive-design", 17],
+                ["geozone/space-waste", 13],
+                ["geozone/transformative-housing-print", 5],
+                ["geozone/straights", 12],
+                ["geozone/staircase-oskemen", 11],
+                ["geozone/anti-ableist-university-alt-text", 8],
+                ["geozone/remember-that-girl", 8],
+                ["geozone/misoprostol-print", 11],
+                ["geozone/people-ports-power-01", 41],
+                ["geozone/sounds-wollongong", 67],
+                ["geozone/peace-stories", 35],
+                ["geozone/abolition-methodologies-print", 15],
+                ["geozone/inland-empire-waterways", 7],
+                ["geozone/energyscapes-print", 13],
+                ["geozone/militarism-climate-crisis", 27],
+                ["geozone/recuerda-esa-chica", 8],
+                ["geozone/dumpster-stories", 15],
+                ["geozone/love-and-rage", 7],
+                ["geozone/quercus", 11],
+                ["geozone/start-with-a-park", 4],
+                ["geozone/misoprostol", 6],
+                ["geozone/defensive-design-print", 17],
+                ["geozone/academic-rebellion", 18],
+                ["geozone/cities-of-banal-warfare", 37],
+                ["geozone/myron-eells", 11],
+                ["geozone/memorias-english", 35],
+                ["geozone/militarism-climate-crisis-print", 27],
+                ["geozone/foraging-art", 7],
+                ["geozone/jesters-freaks-print", 7],
+                ["geozone/got-power", 19],
+                ["geozone/love-ctrl", 10],
+                ["geozone/living-anarchy", 5],
+                ["geozone/mais-dauntaun-3", 103],
+                ["geozone/mais-dauntaun-4", 119],
+                ["geozone/tarde-05", 2],
+                ["geozone/tarde-02", 4],
+                ["geozone/gaza-academics", 2],
+                ["geozone/come-habla", 34],
+                ["geozone/rootling", 6],
+                ["geozone/transformative-housing", 11],
+                ["geozone/mapping-routes", 43],
+                ["geozone/mais-dauntaun-2", 91],
+                ["geozone/demand-the-impossible", 25],
+                ["geozone/sounds-detroit", 45],
+                ["geozone/seabed-mining", 13],
+                ["geozone/tarde-03", 4],
+                ["geozone/rootling-print", 5],
+                ["geozone/tarde-04", 6],
             ];
 
             library.forEach(([zine, pages]) => {
@@ -414,8 +428,9 @@
             const nav = document.getElementById("nav");
             const header = document.getElementById("header");
             let hidden = false;
-            hamburger.addEventListener("click", () => {
-                nav.style.display = hidden ? "block" : "none";
+
+            const toggleNav = () => {
+                nav.style.display = hidden ? "flex" : "none";
 
                 if (hidden) {
                     header.classList.remove("hidden");
@@ -423,7 +438,9 @@
                     header.classList.add("hidden");
                 }
                 hidden = !hidden;
-            });
+            };
+            toggleNav();
+            hamburger.addEventListener("click", () => toggleNav());
 
             const form = document.getElementById("peedeeeffForm");
             window.peedeeeff = document.getElementById("peedeeeff");
