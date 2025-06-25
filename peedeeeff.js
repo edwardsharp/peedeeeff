@@ -8,7 +8,7 @@ class PeeDeeEff extends HTMLElement {
   }
 
   connectedCallback() {
-    const bg = this.getAttribute("background") || "black";
+    const bg = this.getAttribute("background") || "white";
     this.loop = this.getAttribute("loop") === "true";
     this.singleBoundary = this.getAttribute("single-boundary") === "true";
     this.oneAttaTime = this.getAttribute("one-atta-time") === "true";
@@ -19,13 +19,14 @@ class PeeDeeEff extends HTMLElement {
 
     const style = `
           :host {
-            background: ${bg};
-            color: white;
             display: block;
             width: 100%;
             height: 100%;
             overflow: ${scrollMode ? "auto" : "hidden"};
             position: relative;
+          }
+          img {
+            background: ${bg};
           }
           .scroll-container {
             display: flex;
@@ -39,7 +40,6 @@ class PeeDeeEff extends HTMLElement {
             height: auto;
             max-width: 100%;
             object-fit: contain;
-            background: ${bg};
           }
           .scroll-indicator {
             position: absolute;
@@ -73,7 +73,6 @@ class PeeDeeEff extends HTMLElement {
             max-width: 50%;
             object-fit: contain;
             object-position: center;
-            background: inherit;
             flex-shrink: 1;
           }
           button {
