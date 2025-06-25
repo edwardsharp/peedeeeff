@@ -136,6 +136,7 @@
                 single-boundary="false"
                 scroll-mode="false"
                 horizontal-scroll-mode="false"
+                one-atta-time="true"
             >
                 <div
                     class="scroll-message"
@@ -154,7 +155,7 @@
                         <input
                             type="text"
                             name="base-path"
-                            value="gen/disinformation"
+                            value="example/undoinganddoing"
                         />
                         <em
                             >base path to webp files named like
@@ -170,7 +171,7 @@
                             value="11"
                             min="0"
                         />
-                        <em>total page range (the last page-XX.webp file)</em>
+                        <em>total page range (the last page-XXX.webp file)</em>
                     </label>
 
                     <label>
@@ -188,6 +189,12 @@
                             >1 up display of first and last page, all other are
                             2 up</em
                         >
+                    </label>
+
+                    <label>
+                        <input type="checkbox" name="one-atta-time" checked />
+                        one-atta-time
+                        <em>only display one page/image at a time</em>
                     </label>
 
                     <label>
@@ -241,6 +248,7 @@
                 "last-page",
                 "loop",
                 "single-boundary",
+                "one-atta-time",
                 "scroll-mode",
                 "horizontal-scroll-mode",
                 "background",
@@ -285,9 +293,14 @@
                 form.elements["scroll-mode"].disabled = hScrollMode;
                 form.elements["horizontal-scroll-mode"].disabled = scrollMode;
 
-                // Example: disable loop when scroll is vertical or horizontal scroll is active
+                // so then disable loop opt if either checked
                 const loop = form.elements["loop"];
                 loop.disabled = scrollMode || hScrollMode;
+
+                const singleBoundryEl = form.elements["single-boundary"];
+                const oneAttaTimeEl = form.elements["one-atta-time"];
+                oneAttaTimeEl.disabled = singleBoundryEl.checked;
+                singleBoundryEl.disabled = oneAttaTimeEl.checked;
             }
 
             syncControlStates();

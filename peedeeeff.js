@@ -11,6 +11,7 @@ class PeeDeeEff extends HTMLElement {
     const bg = this.getAttribute("background") || "black";
     this.loop = this.getAttribute("loop") === "true";
     this.singleBoundary = this.getAttribute("single-boundary") === "true";
+    this.oneAttaTime = this.getAttribute("one-atta-time") === "true";
     const scrollMode = this.getAttribute("scroll-mode") === "true";
 
     const basePath = this.getAttribute("base-path") || ".";
@@ -165,7 +166,13 @@ class PeeDeeEff extends HTMLElement {
       const hscroll = document.createElement("div");
       hscroll.className = "hscroll-container";
 
-      for (let i = 0; i < this.images.length; i += 2) {
+      let shouldShowRightImg = true;
+      let indexIncrement = 2;
+      if (this.oneAttaTime) {
+        shouldShowRightImg = false;
+        indexIncrement = 1;
+      }
+      for (let i = 0; i < this.images.length; i += indexIncrement) {
         const spread = document.createElement("div");
         spread.className = "spread";
 
@@ -173,10 +180,12 @@ class PeeDeeEff extends HTMLElement {
         img1.src = this.images[i];
         spread.appendChild(img1);
 
-        if (this.images[i + 1]) {
+        if (shouldShowRightImg && this.images[i + 1]) {
           const img2 = document.createElement("img");
           img2.src = this.images[i + 1];
           spread.appendChild(img2);
+        } else {
+          img1.style.maxWidth = "100%";
         }
 
         hscroll.appendChild(spread);
@@ -203,6 +212,7 @@ class PeeDeeEff extends HTMLElement {
         }
         .spread img {
           max-height: 100%;
+          max-width: calc(50% - 1rem);
           object-fit: contain;
           background: ${bg};
         }`;
@@ -249,24 +259,27 @@ class PeeDeeEff extends HTMLElement {
 
     this.index = i;
 
-    if (this.singleBoundary && this.index === 0) {
-      this.leftEl.src = this.images[0] || "";
+    if (this.oneAttaTime || (this.singleBoundary && this.index === 0)) {
+      this.leftEl.src = this.images[this.index] || "";
+      this.leftEl.style.maxWidth = "100%";
       this.rightEl.src = "";
-      this.rightEl.style.visibility = "hidden";
+      this.rightEl.style.display = "none";
       return;
+    } else {
+      this.leftEl.style.maxWidth = "50%";
     }
 
     if (this.singleBoundary && this.index === this.images.length - 1) {
       this.leftEl.src = this.images[this.index] || "";
       this.rightEl.src = "";
-      this.rightEl.style.visibility = "hidden";
+      this.rightEl.style.display = "none";
       return;
     }
 
     this.leftEl.src = this.images[this.index] || "";
     this.rightEl.src = this.images[this.index + 1] || "";
-    this.rightEl.style.visibility =
-      this.index + 1 < this.images.length ? "visible" : "hidden";
+    this.rightEl.style.display =
+      this.index + 1 < this.images.length ? "block" : "none";
   }
 
   keyHandler = (e) => {
