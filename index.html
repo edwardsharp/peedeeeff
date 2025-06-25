@@ -47,8 +47,7 @@
             footer div {
                 flex-grow: 1;
             }
-            header h1,
-            footer b {
+            header h1 {
                 background: magenta;
                 color: black;
                 height: 100%;
@@ -57,11 +56,6 @@
                 width: 220px;
                 padding-right: 1rem;
                 box-sizing: border-box;
-            }
-            footer b {
-                font-size: 0.75em;
-                font-weight: 100;
-                /* kinda ironic for a <b/> 🤷 */
             }
             body {
                 display: flex;
@@ -96,6 +90,23 @@
             nav label:last-of-type {
                 border-bottom: none;
             }
+
+            #hamburger:hover {
+                cursor: context-menu;
+            }
+            #madewith {
+                font-size: 0.75em;
+                font-weight: 100;
+                background: magenta;
+                color: black;
+                text-align: center;
+
+                display: block;
+                line-height: 2.5rem;
+                width: 220px;
+                padding: 0.25rem 1rem;
+                box-sizing: border-box;
+            }
             main > webp-peedeeeff {
                 flex: 1;
                 height: 100%;
@@ -117,10 +128,23 @@
                 margin-top: 0.25rem;
                 box-sizing: border-box;
             }
+
+            @media screen and (max-width: 600px) {
+                footer {
+                    display: none;
+                }
+                header.hidden {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    width: 200px;
+                    z-index: 2;
+                }
+            }
         </style>
     </head>
     <body>
-        <header>
+        <header id="header">
             <div>&nbsp;</div>
             <h1 id="hamburger" title="🍔 toggle controlz">
                 P E E - D E E - E F F
@@ -221,22 +245,27 @@
                         <em>background color behind webp images</em>
                     </label>
                 </form>
+                <a id="madewith" href="https://github.com/edwardsharp/peedeeeff"
+                    >madewith 💖 in nyc</a
+                >
             </nav>
         </main>
         <footer>
             <div>&nbsp;</div>
-            <b
-                ><a href="https://github.com/edwardsharp/peedeeeff"
-                    >made with 💖 in nyc</a
-                ></b
-            >
         </footer>
         <script>
             const hamburger = document.getElementById("hamburger");
             const nav = document.getElementById("nav");
+            const header = document.getElementById("header");
             let hidden = false;
             hamburger.addEventListener("click", () => {
                 nav.style.display = hidden ? "block" : "none";
+
+                if (hidden) {
+                    header.classList.remove("hidden");
+                } else {
+                    header.classList.add("hidden");
+                }
                 hidden = !hidden;
             });
 
