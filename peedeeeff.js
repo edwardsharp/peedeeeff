@@ -232,8 +232,13 @@ class PeeDeeEff extends HTMLElement {
       this.prevBtn = this.shadowRoot.querySelector("#prev");
       this.nextBtn = this.shadowRoot.querySelector("#next");
 
-      this.prevBtn.addEventListener("click", () => this.show(this.index - 2));
-      this.nextBtn.addEventListener("click", () => this.show(this.index + 2));
+      const indexIncrement = this.oneAttaTime ? 1 : 2;
+      this.prevBtn.addEventListener("click", () =>
+        this.show(this.index - indexIncrement),
+      );
+      this.nextBtn.addEventListener("click", () =>
+        this.show(this.index + indexIncrement),
+      );
       window.addEventListener("keydown", this.keyHandler);
 
       for (let i = 0; i <= lastPage; i++) {
@@ -283,8 +288,9 @@ class PeeDeeEff extends HTMLElement {
   }
 
   keyHandler = (e) => {
-    if (e.key === "ArrowLeft") this.show(this.index - 2);
-    else if (e.key === "ArrowRight") this.show(this.index + 2);
+    const indexIncrement = this.oneAttaTime ? 1 : 2;
+    if (e.key === "ArrowLeft") this.show(this.index - indexIncrement);
+    else if (e.key === "ArrowRight") this.show(this.index + indexIncrement);
   };
 }
 
