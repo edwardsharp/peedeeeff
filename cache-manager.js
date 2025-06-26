@@ -137,10 +137,20 @@ class CacheManager {
 
       for (let i = 0; i < maxToCheck; i++) {
         const num = String(i).padStart(3, "0");
-        const url = `${basePath}/page-${num}.webp`;
+        let url = `${basePath}/page-${num}.webp`;
+
+        // Add GitHub Pages path prefix if needed
+        if (window.location.hostname.includes("github.io")) {
+          const pathSegments = window.location.pathname
+            .split("/")
+            .filter(Boolean);
+          if (pathSegments.length > 0 && !url.startsWith("/")) {
+            url = "/" + pathSegments[0] + "/" + url;
+          }
+        }
 
         try {
-          // check if the image exists with a HEAD request
+          // Check if the image exists with a HEAD request
           const response = await fetch(url, { method: "HEAD" });
           if (response.ok) {
             allUrls.push(url);
