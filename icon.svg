@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Magenta background -->
+  <rect x="0" y="0" width="512" height="512" fill="#ff00ff"/>
+
+  <!-- Black text -->
+  <g fill="black" font-family="Arial, sans-serif" font-weight="bold" font-size="80" text-anchor="middle">
+    <text x="256" y="180">PEE</text>
+    <text x="256" y="256">DEE</text>
+    <text x="256" y="332">EFF</text>
+  </g>
+</svg>

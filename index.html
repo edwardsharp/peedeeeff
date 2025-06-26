@@ -3,8 +3,29 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="P E E - D E E - E F F" />
+        <meta name="theme-color" content="#ff6600" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+        <meta name="apple-mobile-web-app-title" content="PEE-DEE-EFF" />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16x16.png"
+        />
         <title>pee-dee-eff tee-stt-trr</title>
         <script src="pee-dee-eff.js"></script>
+        <script src="cache-manager.js"></script>
         <script id="paths-data" type="application/json">
             [
                 ["example/undoinganddoing", 6],
@@ -284,6 +305,28 @@
                 font-size: smaller;
             }
 
+            /* Cache panel styling */
+            #cache-controls {
+                padding: 1rem;
+            }
+
+            #cache-status {
+                padding: 0.5rem;
+                border: 1px solid magenta;
+            }
+
+            #cache-info {
+                display: block;
+                color: magenta;
+                font-weight: bold;
+            }
+
+            #cache-progress {
+                font-size: 0.9rem;
+                color: #666;
+                font-style: italic;
+            }
+
             @media (max-width: 999px) {
                 #path-list button {
                     font-size: 1.5rem;
@@ -301,7 +344,8 @@
         <nav id="flyout">
             <div class="tabs">
                 <button class="tab active" data-tab="paths">ZINEZ</button>
-                <button class="tab" data-tab="props">CONFIG</button>
+                <button class="tab" data-tab="props">LAYOUT</button>
+                <button class="tab" data-tab="cache">CACHE</button>
             </div>
             <div class="panel active" id="panel-paths">
                 <ul id="path-list"></ul>
@@ -309,7 +353,7 @@
             <div class="panel" id="panel-props">
                 <form id="prop-form">
                     <label>
-                        <pre>layout direction</pre>
+                        <pre>direction</pre>
                         <div class="radio-group">
                             <label
                                 ><input
@@ -362,6 +406,23 @@
                     </label>
                 </form>
             </div>
+            <div class="panel" id="panel-cache">
+                <div id="cache-controls">
+                    <button id="cache-btn" type="button">
+                        DOWNLOAD OFFLINE DATA
+                    </button>
+                    <div
+                        id="cache-status"
+                        style="margin-top: 1rem; display: none"
+                    >
+                        <small id="cache-info"></small>
+                        <div
+                            id="cache-progress"
+                            style="margin-top: 0.5rem"
+                        ></div>
+                    </div>
+                </div>
+            </div>
 
             <a id="madewith" href="https://github.com/edwardsharp/peedeeeff"
                 >madewith 💖 in nyc</a
@@ -378,6 +439,12 @@
             const flyout = document.getElementById("flyout");
             const tabs = document.querySelectorAll(".tab");
             const panels = document.querySelectorAll(".panel");
+            const cacheBtn = document.getElementById("cache-btn");
+            const cacheStatus = document.getElementById("cache-status");
+            const cacheInfo = document.getElementById("cache-info");
+            const cacheProgress = document.getElementById("cache-progress");
+            let isCaching = false;
+            let hasCachedImages = false;
             const form = document.getElementById("prop-form");
             const ppvSlider = form.querySelector(
                 "input[name='pages-per-view']",
@@ -486,6 +553,132 @@
             document.addEventListener("mousemove", resetNavVisibility);
             document.addEventListener("touchstart", resetNavVisibility);
             resetNavVisibility();
+
+            // Cache Management
+            async function initCacheManager() {
+                if (!window.cacheManager) {
+                    cacheInfo.textContent =
+                        "Cache not supported in this browser";
+                    cacheBtn.disabled = true;
+                    return;
+                }
+
+                const success = await window.cacheManager.init();
+                if (!success) {
+                    cacheInfo.textContent = "Failed to initialize cache";
+                    cacheBtn.disabled = true;
+                    return;
+                }
+
+                // Request persistent storage for better offline support
+                await window.cacheManager.requestPersistentStorage();
+
+                // Check initial cache status
+                await updateCacheStatus();
+            }
+
+            async function updateCacheStatus() {
+                try {
+                    const status = await window.cacheManager.getCacheStatus();
+                    hasCachedImages =
+                        status.cacheExists && status.totalCached > 0;
+
+                    console.log(
+                        "Cache status:",
+                        status,
+                        "hasCachedImages:",
+                        hasCachedImages,
+                    );
+
+                    if (hasCachedImages) {
+                        cacheBtn.textContent = "DESTROY CACHE";
+                        cacheInfo.textContent = `${status.totalCached} images cached`;
+                    } else {
+                        cacheBtn.textContent = "DOWNLOAD OFFLINE DATA";
+                        cacheInfo.textContent = "no images cached yet";
+                    }
+
+                    const estimate =
+                        await window.cacheManager.getStorageEstimate();
+                    if (estimate && estimate.usage > 0) {
+                        const mbUsed = (estimate.usage / (1024 * 1024)).toFixed(
+                            1,
+                        );
+                        cacheInfo.textContent += ` • ${mbUsed}MB used (${estimate.percentUsed}% of storage)`;
+                    }
+
+                    cacheStatus.style.display = "block";
+                } catch (error) {
+                    console.error("Failed to get cache status:", error);
+                    cacheInfo.textContent = "Cache status unavailable";
+                    cacheStatus.style.display = "block";
+                }
+            }
+
+            async function handleCacheAction() {
+                if (isCaching) return;
+
+                try {
+                    if (hasCachedImages) {
+                        isCaching = true;
+                        cacheBtn.textContent = "one moment...";
+                        cacheBtn.disabled = true;
+                        cacheProgress.textContent = "obliterating cache...";
+
+                        await window.cacheManager.clearCache();
+                        cacheProgress.textContent = "cache gone!";
+
+                        setTimeout(() => {
+                            cacheProgress.textContent = "";
+                            updateCacheStatus();
+                        }, 2000);
+                    } else {
+                        // Cache images
+                        isCaching = true;
+                        cacheBtn.textContent = "one moment...";
+                        cacheBtn.disabled = true;
+                        cacheProgress.textContent = "getting images...";
+
+                        await window.cacheManager.cacheAllImages((progress) => {
+                            switch (progress.type) {
+                                case "start":
+                                    cacheProgress.textContent = `caching ${progress.total} images...`;
+                                    break;
+                                case "complete":
+                                    cacheProgress.textContent = `cached ${progress.cached} images! ${progress.failed > 0 ? `(${progress.failed} failed)` : ""}`;
+                                    setTimeout(() => {
+                                        cacheProgress.textContent = "";
+                                        updateCacheStatus();
+                                    }, 3000);
+                                    break;
+                                case "error":
+                                    cacheProgress.textContent = `❌ Error: ${progress.error}`;
+                                    break;
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error("o noz!cache operation failed:", error);
+                    cacheProgress.textContent = `${error.message}`;
+                } finally {
+                    isCaching = false;
+                    cacheBtn.disabled = false;
+                }
+            }
+
+            cacheBtn.addEventListener("click", handleCacheAction);
+
+            initCacheManager();
+
+            document.addEventListener("visibilitychange", () => {
+                if (
+                    !document.hidden &&
+                    window.cacheManager &&
+                    window.cacheManager.isRegistered
+                ) {
+                    setTimeout(updateCacheStatus, 500);
+                }
+            });
         </script>
     </body>
 </html>

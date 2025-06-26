@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Icon Generator</title>
+</head>
+<body>
+    <h1>PeeDeeEff Icon Generator</h1>
+    <canvas id="icon192" width="192" height="192" style="border: 1px solid #ccc;"></canvas>
+    <canvas id="icon512" width="512" height="512" style="border: 1px solid #ccc;"></canvas>
+    <br><br>
+    <button onclick="downloadIcon(192)">Download 192px Icon</button>
+    <button onclick="downloadIcon(512)">Download 512px Icon</button>
+
+    <script>
+        function createIcon(size) {
+            const canvas = document.getElementById(`icon${size}`);
+            const ctx = canvas.getContext('2d');
+
+            // Magenta background
+            ctx.fillStyle = '#ff00ff';
+            ctx.fillRect(0, 0, size, size);
+
+            // Black text
+            ctx.fillStyle = 'black';
+            ctx.font = `bold ${size * 0.16}px Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const centerX = size / 2;
+            const spacing = size * 0.2;
+            const startY = size * 0.35;
+
+            ctx.fillText('PEE', centerX, startY);
+            ctx.fillText('DEE', centerX, startY + spacing);
+            ctx.fillText('EFF', centerX, startY + spacing * 2);
+        }
+
+        function downloadIcon(size) {
+            const canvas = document.getElementById(`icon${size}`);
+            const link = document.createElement('a');
+            link.download = `icon-${size}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Generate icons on page load
+        createIcon(192);
+        createIcon(512);
+    </script>
+</body>
+</html>

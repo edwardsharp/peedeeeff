@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Favicon Generator - PeeDeeEff</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        canvas { border: 1px solid #ccc; margin: 10px; }
+        .size-group { margin: 20px 0; }
+        button { padding: 10px 20px; margin: 5px; font-size: 14px; }
+        .preview { display: inline-block; margin: 10px; text-align: center; }
+        .preview canvas { display: block; }
+    </style>
+</head>
+<body>
+    <h1>🥹 Favicon Generator for PeeDeeEff</h1>
+
+    <div class="size-group">
+        <h3>Preview Different Sizes:</h3>
+        <div class="preview">
+            <canvas id="favicon16" width="16" height="16"></canvas>
+            <small>16x16 (favicon)</small>
+        </div>
+        <div class="preview">
+            <canvas id="favicon32" width="32" height="32"></canvas>
+            <small>32x32 (standard)</small>
+        </div>
+        <div class="preview">
+            <canvas id="favicon48" width="48" height="48"></canvas>
+            <small>48x48 (windows)</small>
+        </div>
+    </div>
+
+    <div class="size-group">
+        <h3>Download Options:</h3>
+        <button onclick="downloadFavicon(16)">Download 16x16 PNG</button>
+        <button onclick="downloadFavicon(32)">Download 32x32 PNG</button>
+        <button onclick="downloadFavicon(48)">Download 48x48 PNG</button>
+        <button onclick="downloadMultisizeIco()">Download favicon.ico (multi-size)</button>
+    </div>
+
+    <div class="size-group">
+        <h3>HTML Code to Add:</h3>
+        <code style="background: #f0f0f0; padding: 10px; display: block; margin-top: 10px;">
+&lt;link rel="icon" type="image/x-icon" href="/favicon.ico"&gt;<br>
+&lt;link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"&gt;<br>
+&lt;link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"&gt;
+        </code>
+    </div>
+
+    <script>
+        function createFaviconCanvas(size) {
+            const canvas = document.getElementById(`favicon${size}`);
+            const ctx = canvas.getContext('2d');
+
+            // Magenta background
+            ctx.fillStyle = '#ff00ff';
+            ctx.fillRect(0, 0, size, size);
+
+            // For very small sizes, just use a simple design
+            if (size <= 16) {
+                // Just the letter "P" for 16px
+                ctx.fillStyle = 'black';
+                ctx.font = `bold ${Math.floor(size * 0.8)}px Arial, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('P', size / 2, size / 2);
+            } else if (size <= 32) {
+                // "PDF" for 32px
+                ctx.fillStyle = 'black';
+                ctx.font = `bold ${Math.floor(size * 0.25)}px Arial, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                const spacing = size * 0.25;
+                const startY = size * 0.35;
+
+                ctx.fillText('P', size / 2, startY);
+                ctx.fillText('D', size / 2, startY + spacing);
+                ctx.fillText('F', size / 2, startY + spacing * 2);
+            } else {
+                // Full "PEE DEE EFF" for larger sizes
+                ctx.fillStyle = 'black';
+                ctx.font = `bold ${Math.floor(size * 0.16)}px Arial, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                const spacing = size * 0.2;
+                const startY = size * 0.35;
+
+                ctx.fillText('PEE', size / 2, startY);
+                ctx.fillText('DEE', size / 2, startY + spacing);
+                ctx.fillText('EFF', size / 2, startY + spacing * 2);
+            }
+
+            return canvas;
+        }
+
+        function downloadFavicon(size) {
+            const canvas = createOffscreenCanvas(size);
+            const link = document.createElement('a');
+            link.download = `favicon-${size}x${size}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function createOffscreenCanvas(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // Magenta background
+            ctx.fillStyle = '#ff00ff';
+            ctx.fillRect(0, 0, size, size);
+
+            // Adjust text based on size
+            if (size <= 16) {
+                ctx.fillStyle = 'black';
+                ctx.font = `bold ${Math.floor(size * 0.8)}px Arial, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('P', size / 2, size / 2);
+            } else if (size <= 32) {
+                ctx.fillStyle = 'black';
+                ctx.font = `bold ${Math.floor(size * 0.25)}px Arial, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                const spacing = size * 0.25;
+                const startY = size * 0.35;
+
+                ctx.fillText('P', size / 2, startY);
+                ctx.fillText('D', size / 2, startY + spacing);
+                ctx.fillText('F', size / 2, startY + spacing * 2);
+            } else {
+                ctx.fillStyle = 'black';
+                ctx.font = `bold ${Math.floor(size * 0.16)}px Arial, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                const spacing = size * 0.2;
+                const startY = size * 0.35;
+
+                ctx.fillText('PEE', size / 2, startY);
+                ctx.fillText('DEE', size / 2, startY + spacing);
+                ctx.fillText('EFF', size / 2, startY + spacing * 2);
+            }
+
+            return canvas;
+        }
+
+        function downloadMultisizeIco() {
+            // Create a simple data URL for a 32x32 favicon
+            // Note: This creates a PNG, not a true ICO, but most browsers accept it
+            const canvas = createOffscreenCanvas(32);
+            const link = document.createElement('a');
+            link.download = 'favicon.ico';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+
+            alert('Note: This generates a PNG file named favicon.ico. For a true multi-size ICO file, use an online converter or specialized tool.');
+        }
+
+        // Generate preview canvases on page load
+        window.onload = function() {
+            createFaviconCanvas(16);
+            createFaviconCanvas(32);
+            createFaviconCanvas(48);
+        };
+    </script>
+</body>
+</html>

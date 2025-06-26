@@ -1,0 +1,61 @@
+{
+  "name": "P E E - D E E - E F f",
+  "short_name": "PEEDEEEFF",
+  "description": "get yr zinez here, offline!",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ff6600",
+  "theme_color": "#000000",
+  "orientation": "any",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["easy reading"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "view em",
+      "short_name": "ZINEZ",
+      "description": "browse available zine collection",
+      "url": "/?tab=paths",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "cache mgr",
+      "short_name": "cachemgr",
+      "description": "cache rulez everything around me",
+      "url": "/?tab=cache",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
+}
