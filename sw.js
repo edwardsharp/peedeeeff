@@ -1,20 +1,32 @@
 const CACHE_NAME = "peedeeeff-cache-v1";
 const STATIC_CACHE_NAME = "peedeeeff-static-v1";
 
-const STATIC_FILES = [
-  "/",
-  "/index.html",
-  "/pee-dee-eff.js",
-  "/really-simple.html",
-];
+// Static files to cache immediately - with GitHub Pages path detection
+function getStaticFiles() {
+  const basePath = self.location.pathname.split("/").slice(0, -1).join("/");
+  const files = [
+    "index.html",
+    "pee-dee-eff.js",
+    "cache-manager.js",
+    "really-simple.html",
+  ];
 
+  return files.map((file) => (basePath ? `${basePath}/${file}` : `/${file}`));
+}
+
+const STATIC_FILES = getStaticFiles();
+
+// Install event - cache static files
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
       .open(STATIC_CACHE_NAME)
       .then((cache) => {
-        console.log("Service Worker: Caching static files");
-        return cache.addAll(STATIC_FILES);
+        console.log("Service Worker: Caching static files:", STATIC_FILES);
+        return cache.addAll(STATIC_FILES).catch((error) => {
+          console.error("Service Worker: Failed to cache static files:", error);
+          // Continue anyway - don't let static file caching prevent SW installation
+        });
       })
       .then(() => self.skipWaiting()),
   );

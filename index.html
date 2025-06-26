@@ -776,6 +776,46 @@
             }
 
             async function updateCacheStatus() {
+                // fallback to direct cache access if service worker is unavailable
+                if (!window.cacheManager || !window.cacheManager.isRegistered) {
+                    try {
+                        const cache = await caches.open("peedeeeff-cache-v1");
+                        const keys = await cache.keys();
+                        const imageKeys = keys.filter((key) =>
+                            key.url.includes(".webp"),
+                        );
+
+                        hasCachedImages = imageKeys.length > 0;
+
+                        if (hasCachedImages) {
+                            cacheBtn.innerHTML =
+                                "<span>CACHE REMAINING IMAGES</span>";
+                            cacheBtn.style.background = "";
+                            cacheBtn.style.color = "";
+                            cacheBtn.style.backgroundImage = "";
+                            cacheBtn.style.display = "block";
+                            destroyCacheBtn.style.display = "block";
+                            cacheInfo.textContent = `${imageKeys.length} images cached (service worker unavailable)`;
+                        } else {
+                            cacheBtn.innerHTML =
+                                "<span>CACHE ALL IMAGES</span>";
+                            cacheBtn.style.background = "";
+                            cacheBtn.style.color = "";
+                            cacheBtn.style.backgroundImage = "";
+                            cacheBtn.style.display = "block";
+                            destroyCacheBtn.style.display = "none";
+                            cacheInfo.textContent = "no images cached yet";
+                        }
+
+                        await updateZineCacheStatus();
+                        return;
+                    } catch (error) {
+                        console.warn("fallback cache check failed:", error);
+                        cacheInfo.textContent = "cache unavailable";
+                        return;
+                    }
+                }
+
                 try {
                     const status = await window.cacheManager.getCacheStatus();
                     hasCachedImages =
@@ -817,8 +857,8 @@
                     // update zine cache status indicators
                     await updateZineCacheStatus();
                 } catch (error) {
-                    console.error("onoz! failed to get cache status:", error);
-                    cacheInfo.textContent = "cache status unavailable";
+                    console.error("Failed to get cache status:", error);
+                    cacheInfo.textContent = "service worker unavailable";
                 }
             }
 
@@ -861,7 +901,11 @@
                                 updateButtonProgress(percentage);
                                 // update cache status periodically during progress
                                 if (currentProgress % 10 === 0) {
-                                    setTimeout(updateCacheStatus, 100);
+                                    setTimeout(() => {
+                                        updateCacheStatus().catch(() => {
+                                            // ignore errors during progress updates
+                                        });
+                                    }, 100);
                                 }
                                 break;
                             case "complete":
