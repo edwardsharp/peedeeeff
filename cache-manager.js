@@ -153,8 +153,16 @@ class CacheManager {
           const pathSegments = window.location.pathname
             .split("/")
             .filter(Boolean);
-          if (pathSegments.length > 0 && !url.startsWith("/")) {
-            url = "/" + pathSegments[0] + "/" + url;
+          if (pathSegments.length > 0) {
+            // Ensure consistent path format for GitHub Pages
+            if (
+              !url.startsWith("/" + pathSegments[0] + "/") &&
+              !url.startsWith("http")
+            ) {
+              // Remove leading slash if present, then add proper prefix
+              const cleanUrl = url.startsWith("/") ? url.substring(1) : url;
+              url = "/" + pathSegments[0] + "/" + cleanUrl;
+            }
           }
         }
 

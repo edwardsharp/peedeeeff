@@ -60,11 +60,8 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  console.log("SW: Fetch event for:", request.url);
-
   // Only handle same-origin requests
   if (url.origin !== location.origin) {
-    console.log("SW: Skipping different origin");
     return;
   }
 
@@ -78,13 +75,6 @@ self.addEventListener("fetch", (event) => {
       // Try alternative URL formats for cache key matching
       const cache = await caches.open(CACHE_NAME);
       const pathname = url.pathname;
-
-      // Debug: show what we're looking for vs what's cached
-      const cachedKeys = await cache.keys();
-      if (cachedKeys.length > 0) {
-        console.log("SW: Looking for:", pathname);
-        console.log("SW: First cached URL:", cachedKeys[0].url);
-      }
 
       // Try different URL formats that might be in cache
       const alternativeUrls = [
