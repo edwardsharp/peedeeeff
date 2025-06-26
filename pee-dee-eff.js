@@ -17,6 +17,8 @@ class PeeDeeEff extends HTMLElement {
     const pagesPerView = this.hasAttribute("pages-per-view")
       ? parseInt(this.getAttribute("pages-per-view"))
       : 2;
+    this.index = 0;
+    this.images = [];
     let gridCols = Math.ceil(Math.sqrt(pagesPerView));
     let gridRows = gridCols;
     if (pagesPerView === 2) {
@@ -46,8 +48,8 @@ class PeeDeeEff extends HTMLElement {
         object-position: center;
         background: ${bg};
         display: block;
-        pointer-events: none; /* Prevent images from capturing pointer events */
-        user-select: none;     /* Prevent drag selection */
+        pointer-events: none;
+        user-select: none;
       }
       .scroll-indicator {
         position: absolute;
@@ -101,18 +103,20 @@ class PeeDeeEff extends HTMLElement {
       });
 
     const preloadImages = async () => {
+      const tempImages = [];
       let i = 0;
       while (true) {
         const num = String(i).padStart(3, "0");
         const src = `${basePath}/page-${num}.webp`;
         try {
           await tryLoadImage(src);
-          this.images.push(src);
+          tempImages.push(src);
           i++;
         } catch {
           break;
         }
       }
+      this.images = tempImages;
     };
 
     preloadImages().then(() => {
@@ -135,13 +139,14 @@ class PeeDeeEff extends HTMLElement {
           img.dataset.src = src;
           img.alt = `page ${i}`;
           img.loading = "lazy";
-          scrollContainer.appendChild(img);
+          // scrollContainer.appendChild(img);
 
           // so immediately load the first image
           if (i === 0) {
             img.src = src;
-            img.removeAttribute("data-src");
+            // img.removeAttribute("data-src");
           }
+          scrollContainer.appendChild(img);
         });
 
         const lazyObserver = new IntersectionObserver(
@@ -158,7 +163,7 @@ class PeeDeeEff extends HTMLElement {
         );
 
         scrollContainer
-          .querySelectorAll("img")
+          .querySelectorAll("img[data-src]")
           .forEach((img) => lazyObserver.observe(img));
 
         const firstImage = scrollContainer.querySelector("img");
@@ -293,7 +298,6 @@ class PeeDeeEff extends HTMLElement {
       } // end the huuuuge else
 
       // DO THIS FOR BOTH DIRECTIONZ!
-
       // click-to-advance handlerz
       this.addEventListener("click", (e) => {
         if (this._clickSuppressed) return;
