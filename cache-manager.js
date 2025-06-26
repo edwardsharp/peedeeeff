@@ -12,8 +12,64 @@ class CacheManager {
     }
 
     try {
-      const registration = await navigator.serviceWorker.register("/sw.js");
-      console.log("ohey! service Worker registered:", registration);
+      // try multiple paths for better GitHub Pages PWA compatibility
+      let swPath = "./sw.js";
+
+      // so for GitHub Pages, try the repo-relative path if needed
+      if (window.location.hostname.includes("github.io")) {
+        const pathSegments = window.location.pathname
+          .split("/")
+          .filter(Boolean);
+        if (pathSegments.length > 0) {
+          // ,,,in a subdirectory (like /peedeeeff/), use absolute path
+          swPath = window.location.pathname.endsWith("/")
+            ? window.location.pathname + "sw.js"
+            : window.location.pathname + "/sw.js";
+        }
+      }
+
+      console.log("attempting to register service worker at:", swPath);
+      let registration;
+
+      try {
+        registration = await navigator.serviceWorker.register(swPath);
+        console.log("ohey! service Worker registered:", registration);
+      } catch (firstError) {
+        console.warn(
+          "first attempt failed, trying fallback paths:",
+          firstError,
+        );
+
+        // zomg so different fallback pathz for iOS PWA compatibility
+        const fallbackPaths = [
+          "./sw.js",
+          "/sw.js",
+          window.location.origin + "/sw.js",
+          window.location.href.split("/").slice(0, -1).join("/") + "/sw.js",
+        ];
+
+        let lastError = firstError;
+        for (const fallbackPath of fallbackPaths) {
+          if (fallbackPath === swPath) continue; // we already try'd, skip!
+
+          try {
+            console.log("trying fallback path:", fallbackPath);
+            registration = await navigator.serviceWorker.register(fallbackPath);
+            console.log(
+              "ohey! service Worker registered with fallback:",
+              registration,
+            );
+            break;
+          } catch (error) {
+            console.warn("fallback failed:", fallbackPath, error);
+            lastError = error;
+          }
+        }
+
+        if (!registration) {
+          throw lastError;
+        }
+      }
 
       await navigator.serviceWorker.ready;
       this.serviceWorker =

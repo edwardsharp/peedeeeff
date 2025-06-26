@@ -4,7 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="description" content="P E E - D E E - E F F" />
-        <meta name="theme-color" content="#ff6600" />
+        <meta name="theme-color" content="#ff00ff" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black" />
@@ -467,9 +467,26 @@
                 return props;
             }
 
-            function toggleNav() {
-                flyout.style.display =
-                    flyout.style.display === "flex" ? "none" : "flex";
+            function toggleNav(forceClose = false) {
+                // get the computed display style to handle CSS display: none
+                const isCurrentlyVisible =
+                    window.getComputedStyle(flyout).display !== "none";
+
+                if (forceClose || isCurrentlyVisible) {
+                    flyout.style.display = "none";
+                } else {
+                    flyout.style.display = "flex";
+                }
+
+                return window.getComputedStyle(flyout).display !== "none";
+            }
+
+            function closeNav() {
+                flyout.style.display = "none";
+            }
+
+            function isNavOpen() {
+                return window.getComputedStyle(flyout).display !== "none";
             }
 
             toggle.addEventListener("click", toggleNav);
@@ -482,6 +499,15 @@
                     document
                         .getElementById("panel-" + tab.dataset.tab)
                         .classList.add("active");
+
+                    // reload cache info when CACHE tab is opened
+                    if (
+                        tab.dataset.tab === "cache" &&
+                        window.cacheManager &&
+                        window.cacheManager.isRegistered
+                    ) {
+                        updateCacheStatus();
+                    }
                 });
             });
 
@@ -499,7 +525,8 @@
                     btn.onclick = () => {
                         currentBasePath = path;
                         updateViewer(collectFormProps());
-                        toggleNav();
+                        closeNav();
+                        resetNavVisibility(); // reset auto-hide timer after closing
                     };
                     li.appendChild(btn);
                     list.appendChild(li);
@@ -538,23 +565,38 @@
 
             // auto-hide nav toggle after inactivity
             let navTimeout = null;
-            const navToggle = document.getElementById("nav-toggle");
 
             function resetNavVisibility() {
-                navToggle.style.opacity = "1";
-                navToggle.style.pointerEvents = "auto";
+                toggle.style.opacity = "1";
+                toggle.style.pointerEvents = "auto";
                 if (navTimeout) clearTimeout(navTimeout);
-                navTimeout = setTimeout(() => {
-                    navToggle.style.opacity = "0";
-                    navToggle.style.pointerEvents = "none";
-                }, 500);
+
+                // only auto-hide if nav is NOT open
+                if (!isNavOpen()) {
+                    navTimeout = setTimeout(() => {
+                        toggle.style.opacity = "0";
+                        toggle.style.pointerEvents = "none";
+                    }, 500);
+                }
             }
 
             document.addEventListener("mousemove", resetNavVisibility);
             document.addEventListener("touchstart", resetNavVisibility);
             resetNavVisibility();
 
-            // Cache Management
+            // click-away listener 2 close da nav when clicking on something else
+            document.addEventListener("click", (event) => {
+                if (isNavOpen()) {
+                    const isClickInside =
+                        flyout.contains(event.target) ||
+                        toggle.contains(event.target);
+                    if (!isClickInside) {
+                        closeNav();
+                        resetNavVisibility(); // also reset auto-hide timer after closing
+                    }
+                }
+            });
+
             async function initCacheManager() {
                 if (!window.cacheManager) {
                     cacheInfo.textContent =
@@ -570,10 +612,8 @@
                     return;
                 }
 
-                // Request persistent storage for better offline support
                 await window.cacheManager.requestPersistentStorage();
 
-                // Check initial cache status
                 await updateCacheStatus();
             }
 

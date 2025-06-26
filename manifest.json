@@ -4,7 +4,7 @@
   "description": "get yr zinez here, offline!",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ff6600",
+  "background_color": "#ff00ff",
   "theme_color": "#000000",
   "orientation": "any",
   "scope": "/",
