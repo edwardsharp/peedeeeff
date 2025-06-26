@@ -464,21 +464,105 @@
                         props[key] = true;
                     else props[key] = value;
                 }
+
+                // save form settings to localStorage
+                saveFormSettings(props);
+
                 return props;
             }
 
-            function toggleNav(forceClose = false) {
-                // get the computed display style to handle CSS display: none
-                const isCurrentlyVisible =
-                    window.getComputedStyle(flyout).display !== "none";
+            function saveFormSettings(props) {
+                // save all form settings including base-path
+                localStorage.setItem(
+                    "peedeeeff-settings",
+                    JSON.stringify(props),
+                );
+            }
 
-                if (forceClose || isCurrentlyVisible) {
+            function loadFormSettings() {
+                try {
+                    const saved = localStorage.getItem("peedeeeff-settings");
+                    return saved ? JSON.parse(saved) : null;
+                } catch (error) {
+                    console.warn(
+                        "Failed to load settings from localStorage:",
+                        error,
+                    );
+                    return null;
+                }
+            }
+
+            function getResponsiveDefaults() {
+                // check if we're on mobile/small screen
+                const isMobile = window.innerWidth <= 768;
+                return isMobile
+                    ? {
+                          "pages-per-view": "1",
+                          direction: "vertical",
+                      }
+                    : {
+                          "pages-per-view": "2",
+                          direction: "horizontal",
+                      };
+            }
+
+            function applyFormSettings(settings) {
+                // apply base-path (saved zine selection)
+                if (settings["base-path"]) {
+                    currentBasePath = settings["base-path"];
+                }
+
+                // apply pages-per-view
+                if (settings["pages-per-view"]) {
+                    ppvSlider.value = settings["pages-per-view"];
+                    ppvOutput.textContent = settings["pages-per-view"];
+                }
+
+                // apply direction
+                if (settings.direction) {
+                    const directionRadio = form.querySelector(
+                        `input[name="direction"][value="${settings.direction}"]`,
+                    );
+                    if (directionRadio) {
+                        directionRadio.checked = true;
+                    }
+                }
+
+                // apply background color
+                if (settings.background) {
+                    const backgroundInput = form.querySelector(
+                        'input[name="background"]',
+                    );
+                    if (backgroundInput) {
+                        backgroundInput.value = settings.background;
+                    }
+                }
+
+                // apply other checkboxes if they exist
+                ["loop", "1up-first-and-last"].forEach((key) => {
+                    if (settings[key]) {
+                        const checkbox = form.querySelector(
+                            `input[name="${key}"]`,
+                        );
+                        if (checkbox) {
+                            checkbox.checked = true;
+                        }
+                    }
+                });
+            }
+
+            function toggleNav(forceClose = false) {
+                // if no inline style is set, nav starts closed (CSS display: none)
+                const currentDisplay = flyout.style.display || "none";
+                const isCurrentlyOpen = currentDisplay === "flex";
+
+                if (forceClose || isCurrentlyOpen) {
                     flyout.style.display = "none";
                 } else {
                     flyout.style.display = "flex";
                 }
 
-                return window.getComputedStyle(flyout).display !== "none";
+                return flyout.style.display === "flex";
             }
 
             function closeNav() {
@@ -486,10 +570,16 @@
             }
 
             function isNavOpen() {
-                return window.getComputedStyle(flyout).display !== "none";
+                const currentDisplay = flyout.style.display || "none";
+                return currentDisplay === "flex";
             }
 
-            toggle.addEventListener("click", toggleNav);
+            // ensure nav starts in closed state
+            flyout.style.display = "none";
+
+            toggle.addEventListener("click", () => {
+                toggleNav();
+            });
 
             tabs.forEach((tab) => {
                 tab.addEventListener("click", () => {
@@ -500,7 +590,7 @@
                         .getElementById("panel-" + tab.dataset.tab)
                         .classList.add("active");
 
-                    // reload cache info when CACHE tab is opened
+                    // refresh cache info when CACHE tab is opened
                     if (
                         tab.dataset.tab === "cache" &&
                         window.cacheManager &&
@@ -510,6 +600,26 @@
                     }
                 });
             });
+
+            // initialize form settings on page load
+            function initializeFormSettings() {
+                // try to load saved settings first
+                let settings = loadFormSettings();
+
+                // if no saved settings, use responsive defaults
+                if (!settings) {
+                    settings = getResponsiveDefaults();
+                    console.log("Using responsive defaults:", settings);
+                } else {
+                    console.log("Loaded saved settings:", settings);
+                }
+
+                // apply the settings to form controls
+                applyFormSettings(settings);
+            }
+
+            // initialize settings before loading zines
+            initializeFormSettings();
 
             const zineData = document.getElementById("paths-data")?.textContent;
             if (zineData) {
@@ -673,7 +783,7 @@
                             updateCacheStatus();
                         }, 2000);
                     } else {
-                        // Cache images
+                        // cache images
                         isCaching = true;
                         cacheBtn.textContent = "one moment...";
                         cacheBtn.disabled = true;
