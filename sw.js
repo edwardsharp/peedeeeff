@@ -76,62 +76,24 @@ self.addEventListener("fetch", (event) => {
       const cache = await caches.open(CACHE_NAME);
       const pathname = url.pathname;
 
-      console.log(
-        "Service Worker: Trying to match cached version for:",
-        pathname,
-      );
-
-      // Get all cached URLs to see what's actually in the cache
-      const cachedKeys = await cache.keys();
-      const cachedUrls = cachedKeys.map((req) => req.url);
-      console.log("Service Worker: Cache contains", cachedUrls.length, "items");
-
       // Try different URL formats that might be in cache
       const alternativeUrls = [
         pathname, // /peedeeeff/geozone/strange-natures-print/page-000.webp
         pathname.replace(/^\/[^\/]+/, ""), // /geozone/strange-natures-print/page-000.webp
         "/" + pathname.split("/").slice(-3).join("/"), // /strange-natures-print/page-000.webp
         pathname.split("/").slice(-3).join("/"), // strange-natures-print/page-000.webp
-        pathname.split("/").slice(-2).join("/"), // page-000.webp
       ];
-
-      console.log("Service Worker: Trying alternative URLs:", alternativeUrls);
 
       for (const altUrl of alternativeUrls) {
         if (altUrl && altUrl !== pathname) {
-          // Try both as full URL and as relative path
-          const altRequest1 = new Request(new URL(altUrl, url.origin));
-          const altRequest2 = new Request(altUrl, { mode: "same-origin" });
-
-          let altCachedResponse = await cache.match(altRequest1);
-          if (!altCachedResponse) {
-            altCachedResponse = await cache.match(altRequest2);
-          }
-
+          const altRequest = new Request(new URL(altUrl, url.origin));
+          const altCachedResponse = await cache.match(altRequest);
           if (altCachedResponse) {
             console.log(
               "Service Worker: Found in cache with alternative URL:",
               altUrl,
             );
             return altCachedResponse;
-          }
-        }
-      }
-
-      // Last resort: try to find any cached URL that contains the filename
-      const filename = pathname.split("/").pop();
-      if (filename && filename.includes(".webp")) {
-        console.log(
-          "Service Worker: Looking for any cached version of",
-          filename,
-        );
-        for (const cachedUrl of cachedUrls) {
-          if (cachedUrl.includes(filename)) {
-            console.log("Service Worker: Found filename match:", cachedUrl);
-            const matchedResponse = await cache.match(cachedUrl);
-            if (matchedResponse) {
-              return matchedResponse;
-            }
           }
         }
       }
