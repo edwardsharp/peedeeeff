@@ -3,290 +3,11 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PEE-DEE-EFF</title>
-        <style>
-            html,
-            body {
-                margin: 0;
-                padding: 0;
-                font-family: sans-serif;
-                height: 100%;
-                background: black;
-                color: white;
-            }
-            a,
-            a:link,
-            a:visited,
-            a:active,
-            button {
-                color: black;
-                background: magenta;
-                border: none;
-                padding: 0.25rem;
-                margin: 0.25rem;
-            }
-            a:hover,
-            button:hover,
-            #hamburger:hover {
-                background: black;
-                color: magenta;
-                cursor: pointer;
-            }
-
-            button:hover {
-                background: black;
-                color: magenta;
-                cursor: pointer;
-            }
-            header {
-                position: absolute;
-                top: 0;
-                right: 0;
-                width: 220px;
-                z-index: 2;
-                text-align: center;
-            }
-            footer {
-                text-align: center;
-                align-items: center;
-            }
-            footer .center {
-                background: magenta;
-                height: 100%;
-                line-height: 2.5rem;
-                padding: 0px 1rem;
-            }
-            header h1 {
-                display: flex;
-                flex-direction: row;
-                justify-content: space-evenly;
-                font-size: 1rem;
-                margin: 0;
-            }
-            header,
-            footer {
-                height: 3rem;
-                display: flex;
-                align-content: center;
-            }
-
-            header div,
-            footer div {
-                flex-grow: 1;
-            }
-            header h1 {
-                background: magenta;
-                color: black;
-                height: 100%;
-                display: block;
-                line-height: 2.5rem;
-                width: 220px;
-                padding-right: 1rem;
-                box-sizing: border-box;
-            }
-            body {
-                display: flex;
-                flex-direction: column;
-                height: 100dvh;
-            }
-            main {
-                display: flex;
-                flex: 1;
-                overflow: hidden;
-            }
-            nav {
-                margin-top: 3rem;
-                width: 220px;
-                min-width: 220px;
-                max-width: 220px;
-                box-sizing: border-box;
-                overflow-y: auto;
-                display: flex;
-                flex-direction: column;
-            }
-            nav h2 {
-                padding: 0 1rem;
-                font-size: 1.25rem;
-            }
-            nav em {
-                font-size: 0.75rem;
-                display: block;
-                padding: 0.5rem 0px;
-            }
-            nav label {
-                border-bottom: thick solid magenta;
-                padding: 0 1rem;
-            }
-            #toggle-controlz-wrapper {
-                padding: 1rem;
-            }
-            #hamburger {
-                border: thick solid transparent;
-            }
-            #hamburger:hover {
-                cursor: context-menu;
-                text-decoration: underline;
-                border: thick solid magenta;
-            }
-            #madewith {
-                position: sticky;
-                bottom: 0;
-                width: 100%;
-                margin: 0rem;
-                text-align: center;
-            }
-            main > webp-peedeeeff {
-                flex: 1;
-                height: 100%;
-            }
-            .scroll-message {
-                font-size: 2rem;
-                background: white;
-                color: black;
-                z-index: 1;
-            }
-            form label {
-                display: block;
-                margin-top: 1rem;
-            }
-            form input[type="text"],
-            form input[type="number"] {
-                width: 100%;
-                padding: 0.25rem;
-                margin-top: 0.25rem;
-                box-sizing: border-box;
-            }
-
-            @media screen and (max-width: 600px) {
-                footer {
-                    display: none;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <header id="header">
-            <h1 id="hamburger" title="🍔 toggle controlz">
-                P E E - D E E - E F F
-            </h1>
-        </header>
-        <main>
-            <pee-dee-eff
-                id="peedeeeff"
-                last-page="6"
-                base-path="example/undoinganddoing"
-                loop="false"
-                background="white"
-                single-boundary="false"
-                scroll-mode="true"
-                horizontal-scroll-mode="false"
-                one-atta-time="true"
-            >
-                <div
-                    class="scroll-message"
-                    slot="scroll-message"
-                    title="i'm scrollin' ovah heeeere!"
-                >
-                    scroll down 👇
-                </div>
-            </pee-dee-eff>
-
-            <nav id="nav">
-                <form id="peedeeeffForm">
-                    <h2>controlz</h2>
-                    <label class="base-path-controlz">
-                        zine library
-                        <select id="base-path"></select>
-                        <em
-                            >see also:
-                            <a href="http://geoz.one/" target="_blank"
-                                >geoz.one</a
-                            ></em
-                        >
-                    </label>
-
-                    <label>
-                        last-page
-                        <input
-                            type="number"
-                            name="last-page"
-                            value="11"
-                            min="0"
-                        />
-                        <em>total page range (the last page-XXX.webp file)</em>
-                    </label>
-
-                    <label>
-                        <input type="checkbox" name="loop" /> loop
-
-                        <em
-                            >if horizontal scroll, will loop start and end</em
-                        ></label
-                    >
-
-                    <label>
-                        <input type="checkbox" name="single-boundary" />
-                        single-boundary
-                        <em
-                            >1 up display of first and last page, all other are
-                            2 up</em
-                        >
-                    </label>
-
-                    <label>
-                        <input type="checkbox" name="one-atta-time" checked />
-                        one-atta-time
-                        <em>only display one page/image at a time</em>
-                    </label>
-
-                    <label>
-                        <input type="checkbox" name="scroll-mode" checked />
-                        vertical scroll
-                        <em
-                            >vertical scroll (disables horizontal scroll
-                            mode)</em
-                        >
-                    </label>
-
-                    <label>
-                        <input type="checkbox" name="horizontal-scroll-mode" />
-                        horizontal scroll
-                        <em
-                            >horizontal scroll (doesn't use prev/next page
-                            buttons)</em
-                        >
-                    </label>
-
-                    <label>
-                        background
-                        <input type="text" name="background" value="white" />
-                        <em>background color behind webp images</em>
-                    </label>
-                </form>
-
-                <div id="toggle-controlz-wrapper">
-                    <button id="toggle-controlz">
-                        toggle advanced controlz
-                    </button>
-                </div>
-
-                <a id="madewith" href="https://github.com/edwardsharp/peedeeeff"
-                    >madewith 💖 in nyc</a
-                >
-            </nav>
-        </main>
-        <!-- could add some kind of info/link/whateverstuff here, i guess? 🦶 -->
-        <!-- <footer>
-            <div>&nbsp;</div>
-            <div class="center">
-                <i>«hodgepodge»</i> from the
-                <a href="http://undoinganddoing.club/">undoinganddoing.club</a>.
-            </div>
-            <div>&nbsp;</div>
-        </footer> -->
-        <script>
-            const library = [
-                ["example/undoinganddoing", 006],
+        <title>pee-dee-eff tee-stt-trr</title>
+        <script src="pee-dee-eff.js"></script>
+        <script id="paths-data" type="application/json">
+            [
+                ["example/undoinganddoing", 6],
                 ["geozone/disinformation", 11],
                 ["geozone/safer-without-police", 13],
                 ["geozone/otay-mountain", 39],
@@ -395,124 +116,311 @@
                 ["geozone/seabed-mining", 13],
                 ["geozone/tarde-03", 4],
                 ["geozone/rootling-print", 5],
-                ["geozone/tarde-04", 6],
-            ];
-
-            library.forEach(([zine, pages]) => {
-                const basePathSelectEl = document.getElementById("base-path");
-                const opt = document.createElement("option");
-                opt.value = zine;
-                opt.innerText = zine.split("/")[1];
-                basePathSelectEl.appendChild(opt);
-            });
-
-            let showAdvancedControlz = false;
-            const toggleAdvancedControlz = () => {
-                document
-                    .querySelectorAll(
-                        "#peedeeeffForm > *:not(.base-path-controlz)",
-                    )
-                    .forEach((el) => {
-                        el.style.display = showAdvancedControlz
-                            ? "block"
-                            : "none";
-                    });
-                showAdvancedControlz = !showAdvancedControlz;
-            };
-            toggleAdvancedControlz();
-            document
-                .getElementById("toggle-controlz")
-                .addEventListener("click", () => toggleAdvancedControlz());
-
-            const hamburger = document.getElementById("hamburger");
-            const nav = document.getElementById("nav");
-            const header = document.getElementById("header");
-            let hidden = false;
-
-            const toggleNav = () => {
-                nav.style.display = hidden ? "flex" : "none";
-
-                if (hidden) {
-                    header.classList.remove("hidden");
-                } else {
-                    header.classList.add("hidden");
-                }
-                hidden = !hidden;
-            };
-            toggleNav();
-            hamburger.addEventListener("click", () => toggleNav());
-
-            const form = document.getElementById("peedeeeffForm");
-            window.peedeeeff = document.getElementById("peedeeeff");
-
-            const props = [
-                "base-path",
-                "last-page",
-                "loop",
-                "single-boundary",
-                "one-atta-time",
-                "scroll-mode",
-                "horizontal-scroll-mode",
-                "background",
-            ];
-
-            props.forEach((prop) => {
-                const input = form.elements[prop];
-                if (!input) return;
-
-                input.addEventListener("input", () =>
-                    updatepeedeeeff(prop, input),
-                );
-            });
-
-            function updatepeedeeeff(prop, input) {
-                if (input.type === "checkbox") {
-                    if (input.checked) {
-                        window.peedeeeff.setAttribute(prop, "true");
-                    } else {
-                        window.peedeeeff.removeAttribute(prop);
-                    }
-                } else {
-                    window.peedeeeff.setAttribute(prop, input.value);
-                }
-
-                if ((input.id = "base-path")) {
-                    const lastPage = library.find(
-                        ([k, _]) => k === input.value,
-                    )[1];
-                    if (isNaN(lastPage)) return;
-                    form.elements["last-page"].value = lastPage;
-                    window.peedeeeff.setAttribute("last-page", lastPage);
-                }
-
-                const newpeedeeeff = window.peedeeeff.cloneNode(true);
-                window.peedeeeff.replaceWith(newpeedeeeff);
-                newpeedeeeff.id = "peedeeeff";
-                window.peedeeeff = newpeedeeeff;
-
-                syncControlStates();
-            }
-
-            function syncControlStates() {
-                const scrollMode = form.elements["scroll-mode"].checked;
-                const hScrollMode =
-                    form.elements["horizontal-scroll-mode"].checked;
-
-                form.elements["scroll-mode"].disabled = hScrollMode;
-                form.elements["horizontal-scroll-mode"].disabled = scrollMode;
-
-                // so then disable loop opt if either checked
-                const loop = form.elements["loop"];
-                loop.disabled = scrollMode || hScrollMode;
-
-                const singleBoundryEl = form.elements["single-boundary"];
-                const oneAttaTimeEl = form.elements["one-atta-time"];
-                oneAttaTimeEl.disabled = singleBoundryEl.checked;
-                singleBoundryEl.disabled = oneAttaTimeEl.checked;
-            }
-
-            syncControlStates();
+                ["geozone/tarde-04", 6]
+            ]
         </script>
-        <script src="peedeeeff.js"></script>
+        <style>
+            body {
+                margin: 0;
+                background: black;
+                color: white;
+                font-family: sans-serif;
+                height: 100dvh;
+            }
+            main {
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+            }
+            nav {
+                position: absolute;
+                top: 3rem;
+                right: 0;
+                width: 200px;
+                max-height: calc(100dvh - 3rem);
+                background: black;
+                color: white;
+                overflow-y: auto;
+                display: none;
+                flex-direction: column;
+                border: thick solid magenta;
+                box-sizing: border-box;
+            }
+            #nav-toggle {
+                position: absolute;
+                top: 0;
+                right: 0;
+                background: magenta;
+                color: black;
+                width: 200px;
+                padding: 1rem;
+                box-sizing: border-box;
+                cursor: pointer;
+                font-weight: bold;
+                text-align: center;
+            }
+            #nav-toggle:hover,
+            button:hover,
+            input[type="radio"]:hover + label,
+            input[type="checkbox"]:hover + label,
+            #madewith:hover {
+                background: white;
+                color: black;
+            }
+            .tabs {
+                display: flex;
+                gap: 0rem;
+                position: sticky;
+                top: 0;
+                background: black;
+            }
+            .tab {
+                flex: 1;
+                background: black;
+                color: white;
+                border: none;
+                padding: 0.5rem;
+                cursor: pointer;
+                text-align: center;
+            }
+            .tab.active {
+                background: magenta;
+                color: black;
+            }
+            .panel {
+                display: none;
+            }
+            .panel.active {
+                display: block;
+                /* padding-bottom: 1rem; */
+            }
+            button:hover {
+                cursor: pointer;
+            }
+            label {
+                display: block;
+                margin-top: 1rem;
+                font-weight: bold;
+            }
+            small {
+                display: block;
+                color: magenta;
+                font-size: 0.75rem;
+                margin-bottom: 0.25rem;
+            }
+            input,
+            select,
+            button {
+                width: 100%;
+                padding: 0.25rem;
+                background: black;
+                color: white;
+                border: 1px solid white;
+            }
+            .radio-group {
+                display: flex;
+                gap: 0.5rem;
+                margin-top: 0.25rem;
+            }
+            .radio-group label {
+                font-weight: normal;
+                margin: 0;
+            }
+            output {
+                display: block;
+                text-align: right;
+                color: magenta;
+            }
+            #path-list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+            #page-range-container {
+                display: flex;
+                gap: 1rem;
+                align-items: center;
+            }
+            #prop-form {
+                padding: 0rem 0.5rem 1rem 0.5rem;
+            }
+            #madewith {
+                position: sticky;
+                bottom: 0;
+                background: magenta;
+                text-align: center;
+                padding: 0.25rem 0;
+                font-size: smaller;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="nav-toggle">P E E - D E E - E F F</div>
+        <nav id="flyout">
+            <div class="tabs">
+                <button class="tab active" data-tab="paths">ZINEZ</button>
+                <button class="tab" data-tab="props">CONFIG</button>
+            </div>
+            <div class="panel active" id="panel-paths">
+                <ul id="path-list"></ul>
+            </div>
+            <div class="panel" id="panel-props">
+                <form id="prop-form">
+                    <label>
+                        <pre>direction</pre>
+                        <div class="radio-group">
+                            <label
+                                ><input
+                                    type="radio"
+                                    name="direction"
+                                    value="horizontal"
+                                    checked
+                                />
+                                horizontal</label
+                            >
+                            <label
+                                ><input
+                                    type="radio"
+                                    name="direction"
+                                    value="vertical"
+                                />
+                                vertical</label
+                            >
+                        </div>
+                        <small>horizontal or vertical layout mode</small>
+                    </label>
+                    <label>
+                        <pre>pages-per-view</pre>
+                        <div id="page-range-container">
+                            <input
+                                type="range"
+                                name="pages-per-view"
+                                min="1"
+                                max="16"
+                                value="2"
+                                step="1"
+                            />
+                            <output id="ppv-output">2</output>
+                        </div>
+                        <small>pagez shown per view (grid layout adaptz)</small>
+                    </label>
+                    <label>
+                        <pre>loop</pre>
+                        <input type="checkbox" name="loop" />
+                        <small>loop from end to start</small>
+                    </label>
+                    <label>
+                        <pre>1up-first-and-last</pre>
+                        <input type="checkbox" name="1up-first-and-last" />
+                        <small>show first/last slides 1-up</small>
+                    </label>
+                    <label>
+                        <pre>background</pre>
+                        <input type="text" name="background" value="white" />
+                        <small>color behind each page</small>
+                    </label>
+                </form>
+            </div>
+
+            <a id="madewith" href="https://github.com/edwardsharp/peedeeeff"
+                >madewith 💖 in nyc</a
+            >
+        </nav>
+
+        <main>
+            <pee-dee-eff id="peedeeeff"></pee-dee-eff>
+        </main>
+
+        <script>
+            window.peedeeeff = document.getElementById("peedeeeff");
+            const toggle = document.getElementById("nav-toggle");
+            const flyout = document.getElementById("flyout");
+            const tabs = document.querySelectorAll(".tab");
+            const panels = document.querySelectorAll(".panel");
+            const form = document.getElementById("prop-form");
+            const ppvSlider = form.querySelector(
+                "input[name='pages-per-view']",
+            );
+            const ppvOutput = document.getElementById("ppv-output");
+            const list = document.getElementById("path-list");
+            let currentBasePath = null;
+
+            function toggleNav() {
+                flyout.style.display =
+                    flyout.style.display === "flex" ? "none" : "flex";
+            }
+            toggle.addEventListener("click", () => {
+                toggleNav();
+            });
+
+            tabs.forEach((tab) => {
+                tab.addEventListener("click", () => {
+                    tabs.forEach((t) => t.classList.remove("active"));
+                    panels.forEach((p) => p.classList.remove("active"));
+                    tab.classList.add("active");
+                    document
+                        .getElementById("panel-" + tab.dataset.tab)
+                        .classList.add("active");
+                });
+            });
+
+            const zineData = document.getElementById("paths-data")?.textContent;
+            if (zineData) {
+                const zinez = JSON.parse(zineData);
+                const getLastSegment = (str) => {
+                    const parts = str.split("/");
+                    return parts[parts.length - 1] || str;
+                };
+                zinez.forEach(([path], index) => {
+                    const li = document.createElement("li");
+                    const btn = document.createElement("button");
+                    btn.textContent = getLastSegment(path);
+                    btn.onclick = () => {
+                        currentBasePath = path;
+                        updateViewer({ "base-path": path });
+                        toggleNav();
+                    };
+                    li.appendChild(btn);
+                    list.appendChild(li);
+
+                    if (index === 0) {
+                        currentBasePath = path;
+                        updateViewer({ "base-path": path });
+                    }
+                });
+            }
+
+            form.addEventListener("change", () => {
+                const data = new FormData(form);
+                const props = currentBasePath
+                    ? { "base-path": currentBasePath }
+                    : {};
+                for (const [key, value] of data.entries()) {
+                    if (key === "pages-per-view") props[key] = value;
+                    else if (key === "loop" || key === "1up-first-and-last")
+                        props[key] = true;
+                    else props[key] = value;
+                }
+                if (props["base-path"]) updateViewer(props);
+            });
+
+            ppvSlider.addEventListener("input", () => {
+                ppvOutput.textContent = ppvSlider.value;
+            });
+
+            function updateViewer(attrs) {
+                const oldEl = window.peedeeeff;
+                const newEl = oldEl.cloneNode(true);
+                for (const name of oldEl.getAttributeNames()) {
+                    newEl.removeAttribute(name);
+                }
+                for (const key in attrs) {
+                    newEl.setAttribute(key, attrs[key]);
+                }
+                newEl.id = "peedeeeff";
+                oldEl.replaceWith(newEl);
+                window.peedeeeff = newEl;
+            }
+        </script>
     </body>
 </html>

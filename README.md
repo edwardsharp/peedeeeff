@@ -18,17 +18,17 @@ edit `really-simple.html` and change the `base-path="gen/whatever-folder-of-webp
 
 note: .webp images need to follow format `page-000.web` (where 000 is the page number).
 
-if u wanna use this, copy `peedeeeff.js` to where ever you host yr other stuff. then on whatever page include the web-component tag and a `<script />` (u could just copy/paste peedeeeff.js and inline it in a `<script>` on yr page) like:
+if u wanna use this, copy `pee-dee-eff.js` to where ever you host yr other stuff. then on whatever page include the web-component tag and a `<script />` (u could just copy/paste pee-dee-eff.js and inline it in a `<script>` on yr page) like:
 
 ```html
+
 <pee-dee-eff
-    last-page="6"
     base-path="example/undoinganddoing"
-    loop="false"
-    background="white"
-    single-boundary="false"
-    scroll-mode="false"
-    horizontal-scroll-mode="false"
+    pages-per-view="4"
+    direction="horizontal"
+    loop="true"
+    1up-first-and-last="false"
+    background="black"
 >
     <div
         class="scroll-message"
@@ -39,8 +39,21 @@ if u wanna use this, copy `peedeeeff.js` to where ever you host yr other stuff. 
     </div>
 </pee-dee-eff>
 
-<script src="peedeeeff.js"></script>
+
+<script src="pee-dee-eff.js"></script>
 ```
+
+### web component props
+
+| attribute            | type      | options / example values       | default        | required | description                                                                              |
+| -------------------- | --------- | ------------------------------ | -------------- | -------- | ---------------------------------------------------------------------------------------- |
+| `base-path`          | `string`  | `"./slides"`, `"assets/pdf1"`  | `"."`          | No       | Directory where image files like `page-000.webp`, `page-001.webp`, etc. are loaded from. |
+| `pages-per-view`     | `number`  | `1`, `2`, `4`, `6`, etc.       | `2`            | No       | Number of images shown per slide. Determines the grid layout automatically.              |
+| `direction`          | `string`  | `"horizontal"`, `"vertical"`   | `"horizontal"` | No       | Chooses between swipe-to-slide and scroll-down-to-browse modes.                          |
+| `loop`               | `boolean` | `"true"`                       | `false`        | No       | Whether to loop back to the first slide after the last one, and vice versa.              |
+| `1up-first-and-last` | `boolean` | `"true"`                       | `false`        | No       | Not currently used in logic, but may be intended for showing single pages at start/end.  |
+| `background`         | `string`  | `"white"`, `"#000"`, `"black"` | `"white"`      | No       | Background color of each image cell in the grid.                                         |
+
 
 ---
 made with 💖 in nyc
