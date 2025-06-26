@@ -682,10 +682,14 @@
                 if (navTimeout) clearTimeout(navTimeout);
 
                 // only auto-hide if nav is NOT open
-                if (!isNavOpen()) {
+                const navIsOpen = isNavOpen();
+                if (!navIsOpen) {
                     navTimeout = setTimeout(() => {
-                        toggle.style.opacity = "0";
-                        toggle.style.pointerEvents = "none";
+                        // double-check nav is still closed before hiding
+                        if (!isNavOpen()) {
+                            toggle.style.opacity = "0";
+                            toggle.style.pointerEvents = "none";
+                        }
                     }, 500);
                 }
             }
