@@ -60,8 +60,11 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  console.log("SW: Fetch event for:", request.url);
+
   // Only handle same-origin requests
   if (url.origin !== location.origin) {
+    console.log("SW: Skipping different origin");
     return;
   }
 
