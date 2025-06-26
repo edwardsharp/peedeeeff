@@ -35,11 +35,11 @@ class PeeDeeEff extends HTMLElement {
       .scroll-container, .viewer {
         display: grid;
         width: 100%;
-        height: 100%;
+        ${direction === "horizontal" ? "height: 100%;" : ""}
         box-sizing: border-box;
         gap: 0;
         grid-template-columns: repeat(${gridCols}, minmax(0, 1fr));
-        grid-template-rows: repeat(${gridRows}, minmax(0, 1fr));
+        ${direction === "horizontal" ? `grid-template-rows: repeat(${gridRows}, minmax(0, 1fr));` : ""}
       }
       .scroll-container img, .viewer img {
         width: 100%;
@@ -52,23 +52,7 @@ class PeeDeeEff extends HTMLElement {
         user-select: none;
       }
       .scroll-indicator {
-        position: absolute;
-        bottom: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        animation: bounce 1.2s infinite;
-        pointer-events: none;
-        z-index: 10;
-        transition: opacity 0.4s ease;
-        opacity: 1;
-      }
-      .scroll-indicator.hidden {
-        opacity: 0;
-        pointer-events: none;
-      }
-      @keyframes bounce {
-        0%, 100% { transform: translateX(-50%) translateY(0); }
-        50% { transform: translateX(-50%) translateY(-6px); }
+        display: none;
       }
       button {
         position: absolute;
@@ -89,7 +73,7 @@ class PeeDeeEff extends HTMLElement {
       button#next { right: 0.5rem; }
       button#prev,
       button#next {
-      opacity: 1;
+        opacity: 1;
         transition: opacity 0.4s ease;
       }
     `;
@@ -107,7 +91,6 @@ class PeeDeeEff extends HTMLElement {
       let i = 0;
       while (true) {
         const num = String(i).padStart(3, "0");
-        console.log("ZOMG BASE PATH:", this.basePath);
         const src = `${this.basePath}/page-${num}.webp`;
         try {
           await tryLoadImage(src);
@@ -132,64 +115,12 @@ class PeeDeeEff extends HTMLElement {
         scrollContainer.className = "scroll-container";
         this.shadowRoot.appendChild(scrollContainer);
 
-        const slotWrapper = document.createElement("div");
-        slotWrapper.className = "scroll-indicator";
-        slotWrapper.id = "scrollHint";
-        slotWrapper.innerHTML =
-          '<slot name="scroll-message">scroll down!</slot>';
-        this.shadowRoot.appendChild(slotWrapper);
-
         this.images.forEach((src, i) => {
           const img = document.createElement("img");
           img.alt = `page ${i}`;
-
-          if (i === 0) {
-            img.src = src;
-            img.loading = "eager";
-          } else {
-            img.dataset.src = src;
-            img.loading = "lazy";
-          }
+          img.src = src;
           scrollContainer.appendChild(img);
         });
-
-        const lazyObserver = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting && entry.target.dataset.src) {
-                console.log("Loading", entry.target.dataset.src);
-                entry.target.src = entry.target.dataset.src;
-                entry.target.removeAttribute("data-src");
-                lazyObserver.unobserve(entry.target);
-              }
-            });
-          },
-          { rootMargin: "200px" },
-        );
-
-        /// hmm does this need to move?
-        scrollContainer
-          .querySelectorAll("img[data-src]")
-          .forEach((img) => lazyObserver.observe(img));
-
-        const firstImage = scrollContainer.querySelector("img");
-        if (firstImage) {
-          firstImage.addEventListener("load", () => {
-            const hideHint = () => {
-              this.shadowRoot
-                .getElementById("scrollHint")
-                ?.classList.add("hidden");
-              this.removeEventListener("scroll", hideHint);
-            };
-            this.addEventListener(
-              "scroll",
-              () => {
-                if (this.scrollTop > this.SCROLL_HIDE_THRESHOLD) hideHint();
-              },
-              { passive: true },
-            );
-          });
-        }
 
         requestAnimationFrame(() => {
           scrollContainer.scrollTop = 0;
@@ -288,7 +219,6 @@ class PeeDeeEff extends HTMLElement {
           const buttons = this.shadowRoot.querySelectorAll(
             "button#prev, button#next",
           );
-          // [this.prevBtn, this.nextBtn]
           buttons.forEach((btn) => {
             btn.style.opacity = "1";
             btn.style.pointerEvents = "auto";
