@@ -1,5 +1,5 @@
-const CACHE_NAME = "peedeeeff-cache-v1";
-const STATIC_CACHE_NAME = "peedeeeff-static-v1";
+const CACHE_NAME = "peedeeeff-cache-v2";
+const STATIC_CACHE_NAME = "peedeeeff-static-v2";
 
 // Static files to cache immediately - with GitHub Pages path detection
 function getStaticFiles() {
@@ -60,94 +60,90 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  // Debug: log all fetch events
+  console.log("SW FETCH:", request.url);
+
   // Only handle same-origin requests
   if (url.origin !== location.origin) {
+    console.log("SW: Different origin, skipping");
     return;
   }
 
   event.respondWith(
-    caches.match(request).then(async (cachedResponse) => {
-      if (cachedResponse) {
-        console.log("Service Worker: Serving from cache:", request.url);
-        return cachedResponse;
-      }
+    (async () => {
+      try {
+        // First try direct cache match
+        const cachedResponse = await caches.match(request);
+        if (cachedResponse) {
+          console.log("Service Worker: Serving from cache:", request.url);
+          return cachedResponse;
+        }
 
-      // Try alternative URL formats for cache key matching
-      const cache = await caches.open(CACHE_NAME);
-      const pathname = url.pathname;
+        // Try alternative URL formats for cache key matching
+        const cache = await caches.open(CACHE_NAME);
+        const pathname = url.pathname;
 
-      // Debug: show what we're looking for vs what's cached
-      const cachedKeys = await cache.keys();
-      if (cachedKeys.length > 0 && pathname.includes(".webp")) {
-        console.log("SW: Looking for:", pathname);
-        console.log("SW: First cached URL:", cachedKeys[0].url);
-        console.log("SW: Total cached:", cachedKeys.length);
-      }
+        // Try different URL formats that might be in cache
+        const alternativeUrls = [
+          pathname, // /peedeeeff/geozone/strange-natures-print/page-000.webp
+          pathname.replace(/^\/[^\/]+/, ""), // /geozone/strange-natures-print/page-000.webp
+          "/" + pathname.split("/").slice(-3).join("/"), // /strange-natures-print/page-000.webp
+          pathname.split("/").slice(-3).join("/"), // strange-natures-print/page-000.webp
+        ];
 
-      // Try different URL formats that might be in cache
-      const alternativeUrls = [
-        pathname, // /peedeeeff/geozone/strange-natures-print/page-000.webp
-        pathname.replace(/^\/[^\/]+/, ""), // /geozone/strange-natures-print/page-000.webp
-        "/" + pathname.split("/").slice(-3).join("/"), // /strange-natures-print/page-000.webp
-        pathname.split("/").slice(-3).join("/"), // strange-natures-print/page-000.webp
-      ];
-
-      for (const altUrl of alternativeUrls) {
-        if (altUrl && altUrl !== pathname) {
-          const altRequest = new Request(new URL(altUrl, url.origin));
-          const altCachedResponse = await cache.match(altRequest);
-          if (altCachedResponse) {
-            console.log(
-              "Service Worker: Found in cache with alternative URL:",
-              altUrl,
-            );
-            return altCachedResponse;
+        for (const altUrl of alternativeUrls) {
+          if (altUrl && altUrl !== pathname) {
+            const altCachedResponse = await cache.match(altUrl);
+            if (altCachedResponse) {
+              console.log(
+                "Service Worker: Found in cache with alternative URL:",
+                altUrl,
+              );
+              return altCachedResponse;
+            }
           }
         }
-      }
 
-      console.log("Service Worker: Fetching from network:", request.url);
-      return fetch(request)
-        .then((response) => {
-          // don't cache if not a successful response
-          if (
-            !response ||
-            response.status !== 200 ||
-            response.type !== "basic"
-          ) {
-            return response;
-          }
+        // If not in cache, try network
+        console.log("Service Worker: Fetching from network:", request.url);
+        const response = await fetch(request);
 
-          // clone the response since it can only be consumed once...
-          const responseToCache = response.clone();
-
-          // cache .webp images automagically
-          if (request.url.includes(".webp")) {
-            caches.open(CACHE_NAME).then((cache) => {
-              console.log("Service Worker: Auto-caching image:", request.url);
-              cache.put(request, responseToCache);
-            });
-          }
-
+        // don't cache if not a successful response
+        if (!response || response.status !== 200 || response.type !== "basic") {
           return response;
-        })
-        .catch(() => {
-          // For HTML pages, try to serve index.html from cache as fallback
-          if (request.mode === "navigate") {
-            return caches.open(STATIC_CACHE_NAME).then((cache) => {
-              return cache.match("index.html");
-            });
-          }
+        }
 
-          // if network fails and we're looking for an image, return a placeholder
-          if (request.url.includes(".webp")) {
-            console.log(
-              "Service Worker: Network failed for image, no cached version available",
-            );
+        // clone the response since it can only be consumed once...
+        const responseToCache = response.clone();
+
+        // cache .webp images automagically
+        if (request.url.includes(".webp")) {
+          caches.open(CACHE_NAME).then((cache) => {
+            console.log("Service Worker: Auto-caching image:", request.url);
+            cache.put(request, responseToCache);
+          });
+        }
+
+        return response;
+      } catch (error) {
+        // For HTML pages, try to serve index.html from cache as fallback
+        if (request.mode === "navigate") {
+          const staticCache = await caches.open(STATIC_CACHE_NAME);
+          const indexResponse = await staticCache.match("index.html");
+          if (indexResponse) {
+            return indexResponse;
           }
-          throw new Error("network failed and no cached version available");
-        });
-    }),
+        }
+
+        // if network fails and we're looking for an image, return a placeholder
+        if (request.url.includes(".webp")) {
+          console.log(
+            "Service Worker: Network failed for image, no cached version available",
+          );
+        }
+        throw new Error("network failed and no cached version available");
+      }
+    })(),
   );
 });
 
