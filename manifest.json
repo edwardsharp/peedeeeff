@@ -2,12 +2,12 @@
   "name": "P E E - D E E - E F f",
   "short_name": "PEE DEE EFF",
   "description": "get yr zinez here, offline!",
-  "start_url": "/",
+  "start_url": "/peedeeeff/",
   "display": "standalone",
   "background_color": "#ff00ff",
   "theme_color": "#000000",
   "orientation": "any",
-  "scope": "/",
+  "scope": "/peedeeeff/",
   "icons": [
     {
       "src": "icon.svg",
@@ -37,7 +37,7 @@
       "name": "view em",
       "short_name": "ZINEZ",
       "description": "browse available zine collection",
-      "url": "/?tab=paths",
+      "url": "/peedeeeff/?tab=paths",
       "icons": [
         {
           "src": "/icon-192.png",
@@ -49,7 +49,7 @@
       "name": "cache mgr",
       "short_name": "cachemgr",
       "description": "cache rulez everything around me",
-      "url": "/?tab=cache",
+      "url": "/peedeeeff/?tab=cache",
       "icons": [
         {
           "src": "/icon-192.png",
