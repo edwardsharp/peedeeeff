@@ -523,7 +523,7 @@
                     return saved ? JSON.parse(saved) : null;
                 } catch (error) {
                     console.warn(
-                        "Failed to load settings from localStorage:",
+                        "failed to load settings from localStorage:",
                         error,
                     );
                     return null;
@@ -649,9 +649,9 @@
                 // if no saved settings, use responsive defaults
                 if (!settings) {
                     settings = getResponsiveDefaults();
-                    console.log("Using responsive defaults:", settings);
+                    console.log("using responsive defaults:", settings);
                 } else {
-                    console.log("Loaded saved settings:", settings);
+                    console.log("loaded yr saved settings:", settings);
                 }
 
                 // apply the settings to form controls
@@ -683,7 +683,7 @@
                     li.appendChild(btn);
                     list.appendChild(li);
 
-                    if (index === 0) {
+                    if (index === 0 && !currentBasePath) {
                         currentBasePath = path;
                         updateViewer(collectFormProps());
                     }
@@ -820,7 +820,7 @@
                     // update zine cache status indicators
                     await updateZineCacheStatus();
                 } catch (error) {
-                    console.error("Failed to get cache status:", error);
+                    console.error("onoz! failed to get cache status:", error);
                     cacheInfo.textContent = "cache status unavailable";
                 }
             }
@@ -841,7 +841,7 @@
                     let totalImages = 0;
 
                     await window.cacheManager.cacheAllImages((progress) => {
-                        console.log("Cache progress callback:", progress);
+                        console.log("cache progress callback:", progress);
                         switch (progress.type) {
                             case "discovering":
                                 cacheProgress.textContent = `checking ${progress.current}/${progress.total} folders`;
@@ -864,7 +864,7 @@
                                 updateButtonProgress(percentage);
                                 // update cache status periodically during progress
                                 if (currentProgress % 10 === 0) {
-                                    setTimeout(updateZineCacheStatus, 100);
+                                    setTimeout(updateCacheStatus, 100);
                                 }
                                 break;
                             case "complete":
@@ -884,7 +884,7 @@
                         }
                     });
                 } catch (error) {
-                    console.error("Cache operation failed:", error);
+                    console.error("oopz, cache operation failed:", error);
                     cacheProgress.textContent = `error: ${error.message}`;
                     cacheCurrent.textContent = "";
                 } finally {
@@ -915,7 +915,7 @@
                         updateCacheStatus();
                     }, 2000);
                 } catch (error) {
-                    console.error("Cache clear failed:", error);
+                    console.error("eek! cache clear failed:", error);
                     cacheProgress.textContent = `error: ${error.message}`;
                     cacheCurrent.textContent = "";
                 } finally {
@@ -934,7 +934,8 @@
             }
 
             async function updateZineCacheStatus() {
-                if (!window.cacheManager || !window.cacheManager.isRegistered) {
+                // skip service worker check for offline compatibility
+                if (!("caches" in window)) {
                     return;
                 }
 
@@ -951,9 +952,14 @@
                         if (!path) return;
 
                         // check if any images from this zine are cached
-                        const hasImages = cachedUrls.some((url) =>
-                            url.includes(path + "/page-"),
-                        );
+                        // be more flexible with URL matching for offline scenarios
+                        const hasImages = cachedUrls.some((url) => {
+                            const urlPath = new URL(url).pathname;
+                            return (
+                                urlPath.includes(path) &&
+                                urlPath.includes("/page-")
+                            );
+                        });
 
                         if (hasImages) {
                             btn.classList.add("cached");
@@ -963,6 +969,7 @@
                     });
                 } catch (error) {
                     console.warn("failed to check zine cache status:", error);
+                    // fallback: try to preserve existing cached indicators
                 }
             }
 
