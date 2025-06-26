@@ -325,6 +325,24 @@
                 font-size: 0.9rem;
                 color: #666;
                 font-style: italic;
+                margin-top: 0.5rem;
+            }
+
+            #cache-current {
+                font-size: 0.8rem;
+                color: magenta;
+                font-family: monospace;
+                margin-top: 0.25rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                direction: rtl;
+                text-align: left;
+                max-width: 100%;
+            }
+
+            #cache-current:empty {
+                display: none;
             }
 
             @media (max-width: 999px) {
@@ -409,17 +427,19 @@
             <div class="panel" id="panel-cache">
                 <div id="cache-controls">
                     <button id="cache-btn" type="button">
-                        DOWNLOAD OFFLINE DATA
+                        <span>CACHE ALL IMAGES</span>
                     </button>
-                    <div
-                        id="cache-status"
-                        style="margin-top: 1rem; display: none"
+                    <button
+                        id="destroy-cache-btn"
+                        type="button"
+                        style="display: none"
                     >
-                        <small id="cache-info"></small>
-                        <div
-                            id="cache-progress"
-                            style="margin-top: 0.5rem"
-                        ></div>
+                        <span>DESTROY CACHE</span>
+                    </button>
+                    <div id="cache-status" style="margin-top: 1rem">
+                        <small id="cache-info">checking cache status...</small>
+                        <div id="cache-progress"></div>
+                        <div id="cache-current"></div>
                     </div>
                 </div>
             </div>
@@ -439,10 +459,14 @@
             const flyout = document.getElementById("flyout");
             const tabs = document.querySelectorAll(".tab");
             const panels = document.querySelectorAll(".panel");
+            // Cache UI elements
             const cacheBtn = document.getElementById("cache-btn");
+            const destroyCacheBtn =
+                document.getElementById("destroy-cache-btn");
             const cacheStatus = document.getElementById("cache-status");
             const cacheInfo = document.getElementById("cache-info");
             const cacheProgress = document.getElementById("cache-progress");
+            const cacheCurrent = document.getElementById("cache-current");
             let isCaching = false;
             let hasCachedImages = false;
             const form = document.getElementById("prop-form");
@@ -714,20 +738,22 @@
             async function initCacheManager() {
                 if (!window.cacheManager) {
                     cacheInfo.textContent =
-                        "Cache not supported in this browser";
+                        "cache not supported in this browser :(";
                     cacheBtn.disabled = true;
                     return;
                 }
 
                 const success = await window.cacheManager.init();
                 if (!success) {
-                    cacheInfo.textContent = "Failed to initialize cache";
+                    cacheInfo.textContent = "failed to initialize cache";
                     cacheBtn.disabled = true;
                     return;
                 }
 
+                // request persistent storage for better offline support
                 await window.cacheManager.requestPersistentStorage();
 
+                // check initial cache status
                 await updateCacheStatus();
             }
 
@@ -737,21 +763,26 @@
                     hasCachedImages =
                         status.cacheExists && status.totalCached > 0;
 
-                    console.log(
-                        "Cache status:",
-                        status,
-                        "hasCachedImages:",
-                        hasCachedImages,
-                    );
-
                     if (hasCachedImages) {
-                        cacheBtn.textContent = "DESTROY CACHE";
+                        cacheBtn.innerHTML =
+                            "<span>CACHE REMAINING IMAGES</span>";
+                        // cacheBtn.style.background = "";
+                        // cacheBtn.style.color = "";
+                        // cacheBtn.style.backgroundImage = "";
+                        cacheBtn.style.display = "block";
+                        destroyCacheBtn.style.display = "block";
                         cacheInfo.textContent = `${status.totalCached} images cached`;
                     } else {
-                        cacheBtn.textContent = "DOWNLOAD OFFLINE DATA";
+                        cacheBtn.innerHTML = "<span>CACHE ALL IMAGES</span>";
+                        // cacheBtn.style.background = "";
+                        // cacheBtn.style.color = "";
+                        // cacheBtn.style.backgroundImage = "";
+                        cacheBtn.style.display = "block";
+                        destroyCacheBtn.style.display = "none";
                         cacheInfo.textContent = "no images cached yet";
                     }
 
+                    // show storage estimate if available
                     const estimate =
                         await window.cacheManager.getStorageEstimate();
                     if (estimate && estimate.usage > 0) {
@@ -761,11 +792,12 @@
                         cacheInfo.textContent += ` • ${mbUsed}MB used (${estimate.percentUsed}% of storage)`;
                     }
 
-                    cacheStatus.style.display = "block";
+                    // clear progress indicators
+                    cacheProgress.textContent = "";
+                    cacheCurrent.textContent = "";
                 } catch (error) {
                     console.error("Failed to get cache status:", error);
-                    cacheInfo.textContent = "Cache status unavailable";
-                    cacheStatus.style.display = "block";
+                    cacheInfo.textContent = "cache status unavailable";
                 }
             }
 
@@ -773,54 +805,104 @@
                 if (isCaching) return;
 
                 try {
-                    if (hasCachedImages) {
-                        isCaching = true;
-                        cacheBtn.textContent = "one moment...";
-                        cacheBtn.disabled = true;
-                        cacheProgress.textContent = "obliterating cache...";
+                    // cache images (all or remaining)
+                    isCaching = true;
+                    cacheBtn.innerHTML = "<span>CACHING...</span>";
+                    cacheBtn.disabled = true;
+                    destroyCacheBtn.disabled = true;
+                    cacheProgress.textContent = "discovering images...";
+                    cacheCurrent.textContent = "";
 
-                        await window.cacheManager.clearCache();
-                        cacheProgress.textContent = "cache gone!";
+                    let currentProgress = 0;
+                    let totalImages = 0;
 
-                        setTimeout(() => {
-                            cacheProgress.textContent = "";
-                            updateCacheStatus();
-                        }, 2000);
-                    } else {
-                        // cache images
-                        isCaching = true;
-                        cacheBtn.textContent = "one moment...";
-                        cacheBtn.disabled = true;
-                        cacheProgress.textContent = "getting images...";
-
-                        await window.cacheManager.cacheAllImages((progress) => {
-                            switch (progress.type) {
-                                case "start":
-                                    cacheProgress.textContent = `caching ${progress.total} images...`;
-                                    break;
-                                case "complete":
-                                    cacheProgress.textContent = `cached ${progress.cached} images! ${progress.failed > 0 ? `(${progress.failed} failed)` : ""}`;
-                                    setTimeout(() => {
-                                        cacheProgress.textContent = "";
-                                        updateCacheStatus();
-                                    }, 3000);
-                                    break;
-                                case "error":
-                                    cacheProgress.textContent = `❌ Error: ${progress.error}`;
-                                    break;
-                            }
-                        });
-                    }
+                    await window.cacheManager.cacheAllImages((progress) => {
+                        switch (progress.type) {
+                            case "discovering":
+                                cacheProgress.textContent = `checking ${progress.current}/${progress.total} folders`;
+                                cacheCurrent.textContent = progress.folder;
+                                break;
+                            case "start":
+                                totalImages = progress.total;
+                                currentProgress = 0;
+                                cacheProgress.textContent = `caching ${progress.total} images...`;
+                                cacheCurrent.textContent = "";
+                                updateButtonProgress(0);
+                                break;
+                            case "progress":
+                                currentProgress++;
+                                const percentage = Math.round(
+                                    (currentProgress / totalImages) * 100,
+                                );
+                                cacheProgress.textContent = `${currentProgress}/${totalImages} (${percentage}%)`;
+                                cacheCurrent.textContent = progress.url;
+                                updateButtonProgress(percentage);
+                                break;
+                            case "complete":
+                                updateButtonProgress(100);
+                                cacheProgress.textContent = `cached ${progress.cached} images! ${progress.failed > 0 ? `(${progress.failed} failed)` : ""}`;
+                                cacheCurrent.textContent = "";
+                                setTimeout(() => {
+                                    cacheProgress.textContent = "";
+                                    cacheCurrent.textContent = "";
+                                    updateCacheStatus();
+                                }, 3000);
+                                break;
+                            case "error":
+                                cacheProgress.textContent = `error: ${progress.error}`;
+                                cacheCurrent.textContent = "";
+                                break;
+                        }
+                    });
                 } catch (error) {
-                    console.error("o noz!cache operation failed:", error);
-                    cacheProgress.textContent = `${error.message}`;
+                    console.error("Cache operation failed:", error);
+                    cacheProgress.textContent = `error: ${error.message}`;
+                    cacheCurrent.textContent = "";
                 } finally {
                     isCaching = false;
                     cacheBtn.disabled = false;
+                    destroyCacheBtn.disabled = false;
+                    cacheBtn.style.setProperty("--progress", "0%");
                 }
             }
 
+            async function handleDestroyCacheAction() {
+                if (isCaching) return;
+
+                try {
+                    isCaching = true;
+                    destroyCacheBtn.innerHTML = "<span>DESTROYING...</span>";
+                    cacheBtn.disabled = true;
+                    destroyCacheBtn.disabled = true;
+                    cacheProgress.textContent = "clearing cache...";
+                    cacheCurrent.textContent = "";
+
+                    await window.cacheManager.clearCache();
+                    cacheProgress.textContent = "cache destroyed";
+
+                    setTimeout(() => {
+                        cacheProgress.textContent = "";
+                        cacheCurrent.textContent = "";
+                        updateCacheStatus();
+                    }, 2000);
+                } catch (error) {
+                    console.error("Cache clear failed:", error);
+                    cacheProgress.textContent = `error: ${error.message}`;
+                    cacheCurrent.textContent = "";
+                } finally {
+                    isCaching = false;
+                    cacheBtn.disabled = false;
+                    destroyCacheBtn.disabled = false;
+                }
+            }
+
+            function updateButtonProgress(percentage) {
+                cacheBtn.style.setProperty("--progress", percentage + "%");
+                cacheBtn.style.background = `linear-gradient(to right, magenta 0%, magenta ${percentage}%, transparent ${percentage}%, transparent 100%)`;
+            }
+
             cacheBtn.addEventListener("click", handleCacheAction);
+            destroyCacheBtn.addEventListener("click", handleDestroyCacheAction);
 
             initCacheManager();
 

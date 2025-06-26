@@ -117,8 +117,8 @@ class CacheManager {
     });
   }
 
-  async discoverAllImages() {
-    // grab the pathz from this special <script> tag
+  async discoverAllImages(onProgress = null) {
+    // Get the paths data from the script tag in the HTML
     const pathsScript = document.getElementById("paths-data");
     if (!pathsScript) {
       throw new Error("Paths data not found");
@@ -129,8 +129,19 @@ class CacheManager {
 
     console.log("discovering images for", pathsData.length, "base paths...");
 
-    for (const [basePath, expectedCount] of pathsData) {
+    // Process each base path
+    for (let folderIndex = 0; folderIndex < pathsData.length; folderIndex++) {
+      const [basePath, expectedCount] = pathsData[folderIndex];
       console.log(`Checking ${basePath} (expected: ${expectedCount} pages)`);
+
+      if (onProgress) {
+        onProgress({
+          type: "discovering",
+          folder: basePath,
+          current: folderIndex + 1,
+          total: pathsData.length,
+        });
+      }
 
       // try to guess count first? then go a bit beyond to catch any extras.
       const maxToCheck = Math.max(expectedCount + 5, 20);
@@ -172,29 +183,59 @@ class CacheManager {
   }
 
   async cacheAllImages(onProgress = null) {
-    console.log("CACHE MGR: starting to cache all images...");
-    const urls = await this.discoverAllImages();
+    console.log("Cache Manager: Starting to cache all images...");
+    const urls = await this.discoverAllImages(onProgress);
 
     if (onProgress) {
       onProgress({ type: "start", total: urls.length });
     }
 
     try {
-      const result = await this.sendMessage("CACHE_IMAGES", { urls });
-      console.log("CACHE MGR: Caching result:", result);
+      // cache images one by one to get progress updates
+      const results = { cached: [], failed: [] };
+
+      for (let i = 0; i < urls.length; i++) {
+        const url = urls[i];
+
+        if (onProgress) {
+          onProgress({
+            type: "progress",
+            url: url,
+            current: i + 1,
+            total: urls.length,
+          });
+        }
+
+        try {
+          const result = await this.sendMessage("CACHE_IMAGES", {
+            urls: [url],
+          });
+          if (result.cached.length > 0) {
+            results.cached.push(...result.cached);
+          }
+          if (result.failed.length > 0) {
+            results.failed.push(...result.failed);
+          }
+        } catch (error) {
+          console.warn("Failed to cache image:", url, error);
+          results.failed.push(url);
+        }
+      }
+
+      console.log("Cache Manager: Caching complete:", results);
 
       if (onProgress) {
         onProgress({
           type: "complete",
-          cached: result.cached.length,
-          failed: result.failed.length,
+          cached: results.cached.length,
+          failed: results.failed.length,
           total: urls.length,
         });
       }
 
-      return result;
+      return results;
     } catch (error) {
-      console.error("CACHE MGR: caching failed:", error);
+      console.error("Cache Manager: Caching failed:", error);
       if (onProgress) {
         onProgress({ type: "error", error: error.message });
       }
