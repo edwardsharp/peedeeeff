@@ -201,7 +201,7 @@
             }
             label {
                 display: block;
-                margin-top: 1rem;
+                margin: 1rem 0rem;
                 font-weight: bold;
             }
             small {
@@ -219,6 +219,17 @@
                 color: white;
                 border: 1px solid white;
             }
+            input[type="radio"] {
+                appearance: none;
+                background: black;
+                color: black;
+                margin: 0rem;
+            }
+            input[type="radio"]:checked {
+                appearance: none;
+                background: magenta;
+                color: black;
+            }
             .radio-group {
                 display: flex;
                 gap: 0.5rem;
@@ -227,6 +238,9 @@
             .radio-group label {
                 font-weight: normal;
                 margin: 0;
+            }
+            #prop-form pre {
+                margin: 0rem;
             }
             output {
                 display: block;
@@ -306,7 +320,8 @@
                         </div>
                         <small>pagez shown per view (grid layout adaptz)</small>
                     </label>
-                    <label>
+                    <!-- deal with these :/ -->
+                    <!-- <label>
                         <pre>loop</pre>
                         <input type="checkbox" name="loop" />
                         <small>loop from end to start</small>
@@ -315,7 +330,7 @@
                         <pre>1up-first-and-last</pre>
                         <input type="checkbox" name="1up-first-and-last" />
                         <small>show first/last slides 1-up</small>
-                    </label>
+                    </label> -->
                     <label>
                         <pre>background</pre>
                         <input type="text" name="background" value="white" />
@@ -407,7 +422,9 @@
 
             form.addEventListener("change", () => {
                 const props = collectFormProps();
-                if (props["base-path"]) updateViewer(props);
+                if (props["base-path"]) {
+                    updateViewer(props);
+                }
             });
 
             ppvSlider.addEventListener("input", () => {
