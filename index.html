@@ -123,6 +123,10 @@
             * {
                 box-sizing: border-box;
             }
+            html,
+            body {
+                font-size: 16px;
+            }
             body {
                 margin: 0;
                 background: black;
@@ -224,6 +228,12 @@
                 background: black;
                 color: black;
                 margin: 0rem;
+                height: 10px;
+            }
+            input[type="radio"].vertical {
+                width: 10px;
+                height: 50px;
+                margin-top: 5px;
             }
             input[type="radio"]:checked {
                 appearance: none;
@@ -252,6 +262,7 @@
                 padding: 0;
                 margin: 0;
             }
+
             #page-range-container {
                 display: flex;
                 gap: 1rem;
@@ -263,10 +274,22 @@
             #madewith {
                 position: sticky;
                 bottom: 0;
+                color: black;
                 background: magenta;
-                text-align: center;
+                text-align: right;
                 padding: 0.25rem 0;
                 font-size: smaller;
+            }
+
+            @media (max-width: 999px) {
+                #path-list button {
+                    font-size: 1.5rem;
+                }
+
+                nav,
+                #nav-toggle {
+                    width: 75vw;
+                }
             }
         </style>
     </head>
@@ -283,7 +306,7 @@
             <div class="panel" id="panel-props">
                 <form id="prop-form">
                     <label>
-                        <pre>direction</pre>
+                        <pre>layout direction</pre>
                         <div class="radio-group">
                             <label
                                 ><input
@@ -299,15 +322,16 @@
                                     type="radio"
                                     name="direction"
                                     value="vertical"
+                                    class="vertical"
                                 />
                                 vertical</label
                             >
                         </div>
-                        <small>horizontal or vertical layout mode</small>
                     </label>
                     <label>
                         <pre>pages-per-view</pre>
                         <div id="page-range-container">
+                            <output id="ppv-output">2</output>
                             <input
                                 type="range"
                                 name="pages-per-view"
@@ -316,7 +340,6 @@
                                 value="2"
                                 step="1"
                             />
-                            <output id="ppv-output">2</output>
                         </div>
                         <small>pagez shown per view (grid layout adaptz)</small>
                     </label>
@@ -334,7 +357,7 @@
                     <label>
                         <pre>background</pre>
                         <input type="text" name="background" value="white" />
-                        <small>color behind each page</small>
+                        <small>color behind each image</small>
                     </label>
                 </form>
             </div>
