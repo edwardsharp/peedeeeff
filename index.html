@@ -120,6 +120,9 @@
             ]
         </script>
         <style>
+            * {
+                box-sizing: border-box;
+            }
             body {
                 margin: 0;
                 background: black;
@@ -144,7 +147,6 @@
                 display: none;
                 flex-direction: column;
                 border: thick solid magenta;
-                box-sizing: border-box;
             }
             #nav-toggle {
                 position: absolute;
@@ -154,10 +156,10 @@
                 color: black;
                 width: 200px;
                 padding: 1rem;
-                box-sizing: border-box;
                 cursor: pointer;
                 font-weight: bold;
                 text-align: center;
+                transition: opacity 0.4s ease;
             }
             #nav-toggle:hover,
             button:hover,
@@ -345,13 +347,26 @@
             const list = document.getElementById("path-list");
             let currentBasePath = null;
 
+            function collectFormProps() {
+                const data = new FormData(form);
+                const props = currentBasePath
+                    ? { "base-path": currentBasePath }
+                    : {};
+                for (const [key, value] of data.entries()) {
+                    if (key === "pages-per-view") props[key] = value;
+                    else if (key === "loop" || key === "1up-first-and-last")
+                        props[key] = true;
+                    else props[key] = value;
+                }
+                return props;
+            }
+
             function toggleNav() {
                 flyout.style.display =
                     flyout.style.display === "flex" ? "none" : "flex";
             }
-            toggle.addEventListener("click", () => {
-                toggleNav();
-            });
+
+            toggle.addEventListener("click", toggleNav);
 
             tabs.forEach((tab) => {
                 tab.addEventListener("click", () => {
@@ -377,7 +392,7 @@
                     btn.textContent = getLastSegment(path);
                     btn.onclick = () => {
                         currentBasePath = path;
-                        updateViewer({ "base-path": path });
+                        updateViewer(collectFormProps());
                         toggleNav();
                     };
                     li.appendChild(btn);
@@ -385,22 +400,13 @@
 
                     if (index === 0) {
                         currentBasePath = path;
-                        updateViewer({ "base-path": path });
+                        updateViewer(collectFormProps());
                     }
                 });
             }
 
             form.addEventListener("change", () => {
-                const data = new FormData(form);
-                const props = currentBasePath
-                    ? { "base-path": currentBasePath }
-                    : {};
-                for (const [key, value] of data.entries()) {
-                    if (key === "pages-per-view") props[key] = value;
-                    else if (key === "loop" || key === "1up-first-and-last")
-                        props[key] = true;
-                    else props[key] = value;
-                }
+                const props = collectFormProps();
                 if (props["base-path"]) updateViewer(props);
             });
 
@@ -421,6 +427,24 @@
                 oldEl.replaceWith(newEl);
                 window.peedeeeff = newEl;
             }
+
+            // auto-hide nav toggle after inactivity
+            let navTimeout = null;
+            const navToggle = document.getElementById("nav-toggle");
+
+            function resetNavVisibility() {
+                navToggle.style.opacity = "1";
+                navToggle.style.pointerEvents = "auto";
+                if (navTimeout) clearTimeout(navTimeout);
+                navTimeout = setTimeout(() => {
+                    navToggle.style.opacity = "0";
+                    navToggle.style.pointerEvents = "none";
+                }, 3145);
+            }
+
+            document.addEventListener("mousemove", resetNavVisibility);
+            document.addEventListener("touchstart", resetNavVisibility);
+            resetNavVisibility();
         </script>
     </body>
 </html>
