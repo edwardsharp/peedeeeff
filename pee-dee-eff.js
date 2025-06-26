@@ -82,11 +82,14 @@ class PeeDeeEff extends HTMLElement {
         transition: opacity 0.3s;
         z-index: 1;
       }
-      :host(:hover) button {
-        opacity: 1;
-      }
+
       button#prev { left: 0.5rem; }
       button#next { right: 0.5rem; }
+      button#prev,
+      button#next {
+      opacity: 1;
+        transition: opacity 0.4s ease;
+      }
     `;
 
     const tryLoadImage = (src) =>
@@ -133,6 +136,12 @@ class PeeDeeEff extends HTMLElement {
           img.alt = `page ${i}`;
           img.loading = "lazy";
           scrollContainer.appendChild(img);
+
+          // so immediately load the first image
+          if (i === 0) {
+            img.src = src;
+            img.removeAttribute("data-src");
+          }
         });
 
         const lazyObserver = new IntersectionObserver(
@@ -191,7 +200,7 @@ class PeeDeeEff extends HTMLElement {
         this.pagesPerView = pagesPerView;
         this.show(0);
 
-        // Horizontal scroll gesture support + desktop swipe detection
+        // horizontal scroll gesture support + desktop swipe detection
         let lastScrollTime = 0;
         const SCROLL_COOLDOWN = 500; // ms
         this.addEventListener(
@@ -214,14 +223,16 @@ class PeeDeeEff extends HTMLElement {
           { passive: false },
         );
 
-        // Crude swipe support + click fallback
+        // crude swipe support + click fallback
         let startX = null;
-        this.addEventListener("pointerdown", (e) => {
-          startX = e.clientX;
-        });
-        this.addEventListener("pointerup", (e) => {
+
+        const handleSwipeStart = (x) => {
+          startX = x;
+        };
+
+        const handleSwipeEnd = (x) => {
           if (startX === null) return;
-          const dx = e.clientX - startX;
+          const dx = x - startX;
           if (Math.abs(dx) > 50) {
             this._clickSuppressed = true;
             if (dx < 0) this.show(this.index + this.pagesPerView);
@@ -230,31 +241,81 @@ class PeeDeeEff extends HTMLElement {
             this._clickSuppressed = false;
           }
           startX = null;
-        });
+        };
 
-        // Click-to-advance support
-        this.addEventListener("click", (e) => {
-          if (this._clickSuppressed) return;
-          const rect = this.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          if (x < rect.width / 2) {
-            this.show(this.index - this.pagesPerView);
-          } else {
-            this.show(this.index + this.pagesPerView);
+        // pointer4desktop
+        this.addEventListener("pointerdown", (e) =>
+          handleSwipeStart(e.clientX),
+        );
+        this.addEventListener("pointerup", (e) => handleSwipeEnd(e.clientX));
+
+        // touch4mobile
+        this.addEventListener(
+          "touchstart",
+          (e) => {
+            if (e.touches.length === 1) {
+              handleSwipeStart(e.touches[0].clientX);
+            }
+          },
+          { passive: true },
+        );
+
+        this.addEventListener("touchend", (e) => {
+          if (e.changedTouches.length === 1) {
+            handleSwipeEnd(e.changedTouches[0].clientX);
           }
         });
 
-        // be aggressive about preventing overscroll.
-        window.addEventListener(
-          "wheel",
-          (e) => {
-            if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-              e.preventDefault(); // block overscroll
-            }
-          },
-          { passive: false },
-        );
-      }
+        // auto-hide prev/next buttons on inactivity
+        let navButtonTimeout = null;
+
+        const resetViewerButtonVisibility = () => {
+          const buttons = this.shadowRoot.querySelectorAll(
+            "button#prev, button#next",
+          );
+          // [this.prevBtn, this.nextBtn]
+          buttons.forEach((btn) => {
+            btn.style.opacity = "1";
+            btn.style.pointerEvents = "auto";
+          });
+          if (navButtonTimeout) clearTimeout(navButtonTimeout);
+          navButtonTimeout = setTimeout(() => {
+            buttons.forEach((btn) => {
+              btn.style.opacity = "0";
+              btn.style.pointerEvents = "none";
+            });
+          }, 1234);
+        };
+
+        this.addEventListener("mousemove", resetViewerButtonVisibility);
+        this.addEventListener("touchstart", resetViewerButtonVisibility);
+        resetViewerButtonVisibility();
+      } // end the huuuuge else
+
+      // DO THIS FOR BOTH DIRECTIONZ!
+
+      // click-to-advance handlerz
+      this.addEventListener("click", (e) => {
+        if (this._clickSuppressed) return;
+        const rect = this.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        if (x < rect.width / 2) {
+          this.show(this.index - this.pagesPerView);
+        } else {
+          this.show(this.index + this.pagesPerView);
+        }
+      });
+
+      // be aggressive about preventing overscroll.
+      window.addEventListener(
+        "wheel",
+        (e) => {
+          if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+            e.preventDefault(); // block overscroll
+          }
+        },
+        { passive: false },
+      );
     });
   }
 
