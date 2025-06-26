@@ -76,6 +76,14 @@ self.addEventListener("fetch", (event) => {
       const cache = await caches.open(CACHE_NAME);
       const pathname = url.pathname;
 
+      // Debug: show what we're looking for vs what's cached
+      const cachedKeys = await cache.keys();
+      if (cachedKeys.length > 0 && pathname.includes(".webp")) {
+        console.log("SW: Looking for:", pathname);
+        console.log("SW: First cached URL:", cachedKeys[0].url);
+        console.log("SW: Total cached:", cachedKeys.length);
+      }
+
       // Try different URL formats that might be in cache
       const alternativeUrls = [
         pathname, // /peedeeeff/geozone/strange-natures-print/page-000.webp
