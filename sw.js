@@ -48,10 +48,36 @@ self.addEventListener("fetch", (event) => {
   }
 
   event.respondWith(
-    caches.match(request).then((cachedResponse) => {
+    caches.match(request).then(async (cachedResponse) => {
       if (cachedResponse) {
         console.log("Service Worker: Serving from cache:", request.url);
         return cachedResponse;
+      }
+
+      // Try alternative URL formats for cache key matching
+      const cache = await caches.open(CACHE_NAME);
+      const pathname = url.pathname;
+
+      // Try different URL formats that might be in cache
+      const alternativeUrls = [
+        pathname, // /example/undoinganddoing/page-000.webp
+        pathname.replace(/^\/[^\/]+/, ""), // remove first path segment
+        "/" + pathname.split("/").slice(-3).join("/"), // last 3 segments
+        pathname.split("/").slice(-3).join("/"), // last 3 segments without leading slash
+      ];
+
+      for (const altUrl of alternativeUrls) {
+        if (altUrl && altUrl !== pathname) {
+          const altRequest = new Request(new URL(altUrl, url.origin));
+          const altCachedResponse = await cache.match(altRequest);
+          if (altCachedResponse) {
+            console.log(
+              "Service Worker: Found in cache with alternative URL:",
+              altUrl,
+            );
+            return altCachedResponse;
+          }
+        }
       }
 
       console.log("Service Worker: Fetching from network:", request.url);

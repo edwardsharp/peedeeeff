@@ -345,6 +345,15 @@
                 display: none;
             }
 
+            /* zine cache status indicators */
+            .zine-button {
+                position: relative;
+            }
+
+            .zine-button.cached {
+                filter: invert();
+            }
+
             @media (max-width: 999px) {
                 #path-list button {
                     font-size: 1.5rem;
@@ -655,6 +664,8 @@
                 zinez.forEach(([path], index) => {
                     const li = document.createElement("li");
                     const btn = document.createElement("button");
+                    btn.className = "zine-button";
+                    btn.dataset.path = path;
                     btn.textContent = getLastSegment(path);
                     btn.onclick = () => {
                         currentBasePath = path;
@@ -670,6 +681,9 @@
                         updateViewer(collectFormProps());
                     }
                 });
+
+                // check which zines are cached and update their styling
+                updateZineCacheStatus();
             }
 
             form.addEventListener("change", () => {
@@ -766,17 +780,17 @@
                     if (hasCachedImages) {
                         cacheBtn.innerHTML =
                             "<span>CACHE REMAINING IMAGES</span>";
-                        // cacheBtn.style.background = "";
-                        // cacheBtn.style.color = "";
-                        // cacheBtn.style.backgroundImage = "";
+                        cacheBtn.style.background = "";
+                        cacheBtn.style.color = "";
+                        cacheBtn.style.backgroundImage = "";
                         cacheBtn.style.display = "block";
                         destroyCacheBtn.style.display = "block";
                         cacheInfo.textContent = `${status.totalCached} images cached`;
                     } else {
                         cacheBtn.innerHTML = "<span>CACHE ALL IMAGES</span>";
-                        // cacheBtn.style.background = "";
-                        // cacheBtn.style.color = "";
-                        // cacheBtn.style.backgroundImage = "";
+                        cacheBtn.style.background = "";
+                        cacheBtn.style.color = "";
+                        cacheBtn.style.backgroundImage = "";
                         cacheBtn.style.display = "block";
                         destroyCacheBtn.style.display = "none";
                         cacheInfo.textContent = "no images cached yet";
@@ -795,6 +809,9 @@
                     // clear progress indicators
                     cacheProgress.textContent = "";
                     cacheCurrent.textContent = "";
+
+                    // update zine cache status indicators
+                    await updateZineCacheStatus();
                 } catch (error) {
                     console.error("Failed to get cache status:", error);
                     cacheInfo.textContent = "cache status unavailable";
@@ -817,6 +834,7 @@
                     let totalImages = 0;
 
                     await window.cacheManager.cacheAllImages((progress) => {
+                        console.log("Cache progress callback:", progress);
                         switch (progress.type) {
                             case "discovering":
                                 cacheProgress.textContent = `checking ${progress.current}/${progress.total} folders`;
@@ -837,6 +855,10 @@
                                 cacheProgress.textContent = `${currentProgress}/${totalImages} (${percentage}%)`;
                                 cacheCurrent.textContent = progress.url;
                                 updateButtonProgress(percentage);
+                                // update cache status periodically during progress
+                                if (currentProgress % 10 === 0) {
+                                    setTimeout(updateZineCacheStatus, 100);
+                                }
                                 break;
                             case "complete":
                                 updateButtonProgress(100);
@@ -897,8 +919,44 @@
             }
 
             function updateButtonProgress(percentage) {
+                // TODO do better here
                 cacheBtn.style.setProperty("--progress", percentage + "%");
                 cacheBtn.style.background = `linear-gradient(to right, magenta 0%, magenta ${percentage}%, transparent ${percentage}%, transparent 100%)`;
+                cacheBtn.style.backgroundSize = "100% 100%";
+                cacheBtn.style.backgroundRepeat = "no-repeat";
+            }
+
+            async function updateZineCacheStatus() {
+                if (!window.cacheManager || !window.cacheManager.isRegistered) {
+                    return;
+                }
+
+                try {
+                    const cache = await caches.open("peedeeeff-cache-v1");
+                    const cachedRequests = await cache.keys();
+                    const cachedUrls = cachedRequests.map((req) => req.url);
+
+                    // check each zine button
+                    const zineButtons =
+                        document.querySelectorAll(".zine-button");
+                    zineButtons.forEach((btn) => {
+                        const path = btn.dataset.path;
+                        if (!path) return;
+
+                        // check if any images from this zine are cached
+                        const hasImages = cachedUrls.some((url) =>
+                            url.includes(path + "/page-"),
+                        );
+
+                        if (hasImages) {
+                            btn.classList.add("cached");
+                        } else {
+                            btn.classList.remove("cached");
+                        }
+                    });
+                } catch (error) {
+                    console.warn("failed to check zine cache status:", error);
+                }
             }
 
             cacheBtn.addEventListener("click", handleCacheAction);

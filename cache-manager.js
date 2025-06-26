@@ -117,7 +117,7 @@ class CacheManager {
     });
   }
 
-  async discoverAllImages(onProgress = null) {
+  async buildImageUrls(onProgress = null) {
     // Get the paths data from the script tag in the HTML
     const pathsScript = document.getElementById("paths-data");
     if (!pathsScript) {
@@ -127,12 +127,12 @@ class CacheManager {
     const pathsData = JSON.parse(pathsScript.textContent);
     const allUrls = [];
 
-    console.log("discovering images for", pathsData.length, "base paths...");
+    console.log("building image list for", pathsData.length, "base paths...");
 
-    // Process each base path
+    // Process each base path using expected counts (skip discovery to avoid CORS)
     for (let folderIndex = 0; folderIndex < pathsData.length; folderIndex++) {
       const [basePath, expectedCount] = pathsData[folderIndex];
-      console.log(`Checking ${basePath} (expected: ${expectedCount} pages)`);
+      console.log(`Building URLs for ${basePath} (${expectedCount} pages)`);
 
       if (onProgress) {
         onProgress({
@@ -143,10 +143,8 @@ class CacheManager {
         });
       }
 
-      // try to guess count first? then go a bit beyond to catch any extras.
-      const maxToCheck = Math.max(expectedCount + 5, 20);
-
-      for (let i = 0; i < maxToCheck; i++) {
+      // Build URLs based on expected count (no checking to avoid CORS)
+      for (let i = 0; i < expectedCount; i++) {
         const num = String(i).padStart(3, "0");
         let url = `${basePath}/page-${num}.webp`;
 
@@ -160,37 +158,40 @@ class CacheManager {
           }
         }
 
-        try {
-          // Check if the image exists with a HEAD request
-          const response = await fetch(url, { method: "HEAD" });
-          if (response.ok) {
-            allUrls.push(url);
-          } else if (i >= expectedCount) {
-            // stop checking this path if beyond expected count and hit 404
-            break;
-          }
-        } catch (error) {
-          // network error or similar - stop checking this path
-          if (i >= expectedCount) {
-            break;
-          }
-        }
+        allUrls.push(url);
       }
+
+      console.log(`Built ${expectedCount} URLs for ${basePath}`);
     }
 
-    console.log(`Discovered ${allUrls.length} total images`);
+    console.log(`Built ${allUrls.length} total image URLs`);
     return allUrls;
   }
 
   async cacheAllImages(onProgress = null) {
     console.log("Cache Manager: Starting to cache all images...");
-    const urls = await this.discoverAllImages(onProgress);
-
-    if (onProgress) {
-      onProgress({ type: "start", total: urls.length });
-    }
 
     try {
+      const urls = await this.buildImageUrls(onProgress);
+
+      console.log(
+        "Cache Manager: URL building complete, built",
+        urls.length,
+        "URLs",
+      );
+
+      if (urls.length === 0) {
+        console.log("Cache Manager: No images found to cache");
+        if (onProgress) {
+          onProgress({ type: "complete", cached: 0, failed: 0, total: 0 });
+        }
+        return { cached: [], failed: [] };
+      }
+
+      if (onProgress) {
+        onProgress({ type: "start", total: urls.length });
+      }
+
       // cache images one by one to get progress updates
       const results = { cached: [], failed: [] };
 
@@ -207,9 +208,11 @@ class CacheManager {
         }
 
         try {
+          console.log("Cache Manager: Requesting cache for", url);
           const result = await this.sendMessage("CACHE_IMAGES", {
             urls: [url],
           });
+          console.log("Cache Manager: Got result for", url, result);
           if (result.cached.length > 0) {
             results.cached.push(...result.cached);
           }
