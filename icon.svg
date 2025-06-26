@@ -2,8 +2,8 @@
   <!-- Magenta background -->
   <rect x="0" y="0" width="512" height="512" fill="#ff00ff"/>
 
-  <!-- Black text -->
-  <g fill="black" font-family="Arial, sans-serif" font-weight="bold" font-size="80" text-anchor="middle">
+  <!-- Black monospace text -->
+  <g fill="black" font-family="Monaco, 'Courier New', monospace" font-weight="bold" font-size="80" text-anchor="middle">
     <text x="256" y="180">PEE</text>
     <text x="256" y="256">DEE</text>
     <text x="256" y="332">EFF</text>
