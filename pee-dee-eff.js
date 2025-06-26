@@ -5,7 +5,8 @@ class PeeDeeEff extends HTMLElement {
     this.images = [];
     this.index = 0;
     this.SCROLL_HIDE_THRESHOLD = 150;
-    this._clickSuppressed = false; // track if swipe occurred to suppress click
+    this._clickSuppressed = false;
+    this._observer = null;
   }
 
   connectedCallback() {
@@ -78,13 +79,14 @@ class PeeDeeEff extends HTMLElement {
       }
     `;
 
-    const tryLoadImage = (src) =>
-      new Promise((resolve, reject) => {
-        const img = new Image();
-        img.src = src;
-        img.onload = () => resolve(src);
-        img.onerror = () => reject(src);
-      });
+    const imageExists = async (url) => {
+      try {
+        const res = await fetch(url, { method: "HEAD" });
+        return res.ok;
+      } catch {
+        return false;
+      }
+    };
 
     const preloadImages = async () => {
       const tempImages = [];
@@ -92,11 +94,10 @@ class PeeDeeEff extends HTMLElement {
       while (true) {
         const num = String(i).padStart(3, "0");
         const src = `${this.basePath}/page-${num}.webp`;
-        try {
-          await tryLoadImage(src);
+        if (await imageExists(src)) {
           tempImages.push(src);
           i++;
-        } catch {
+        } else {
           break;
         }
       }
@@ -110,6 +111,25 @@ class PeeDeeEff extends HTMLElement {
     preloadImages().then(() => {
       this.shadowRoot.innerHTML = `<style>${style}</style>`;
 
+      const setupLazyImage = (img, src) => {
+        img.loading = "lazy";
+        img.dataset.src = src;
+        this._observer.observe(img);
+      };
+
+      this._observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const img = entry.target;
+              img.src = img.dataset.src;
+              this._observer.unobserve(img);
+            }
+          });
+        },
+        { root: null, rootMargin: "100px" },
+      );
+
       if (direction === "vertical") {
         const scrollContainer = document.createElement("div");
         scrollContainer.className = "scroll-container";
@@ -118,7 +138,7 @@ class PeeDeeEff extends HTMLElement {
         this.images.forEach((src, i) => {
           const img = document.createElement("img");
           img.alt = `page ${i}`;
-          img.src = src;
+          setupLazyImage(img, src);
           scrollContainer.appendChild(img);
         });
 
@@ -146,9 +166,8 @@ class PeeDeeEff extends HTMLElement {
         this.pagesPerView = pagesPerView;
         this.show(0);
 
-        // horizontal scroll gesture support + desktop swipe detection
         let lastScrollTime = 0;
-        const SCROLL_COOLDOWN = 500; // ms
+        const SCROLL_COOLDOWN = 500;
         this.addEventListener(
           "wheel",
           (e) => {
@@ -169,7 +188,6 @@ class PeeDeeEff extends HTMLElement {
           { passive: false },
         );
 
-        // crude swipe support + click fallback
         let startX = null;
 
         const handleSwipeStart = (x) => {
@@ -189,13 +207,11 @@ class PeeDeeEff extends HTMLElement {
           startX = null;
         };
 
-        // pointer4desktop
         this.addEventListener("pointerdown", (e) =>
           handleSwipeStart(e.clientX),
         );
         this.addEventListener("pointerup", (e) => handleSwipeEnd(e.clientX));
 
-        // touch4mobile
         this.addEventListener(
           "touchstart",
           (e) => {
@@ -212,7 +228,6 @@ class PeeDeeEff extends HTMLElement {
           }
         });
 
-        // auto-hide prev/next buttons on inactivity
         let navButtonTimeout = null;
 
         const resetViewerButtonVisibility = () => {
@@ -235,10 +250,8 @@ class PeeDeeEff extends HTMLElement {
         this.addEventListener("mousemove", resetViewerButtonVisibility);
         this.addEventListener("touchstart", resetViewerButtonVisibility);
         resetViewerButtonVisibility();
-      } // end the huuuuge else
+      }
 
-      // DO THIS FOR BOTH DIRECTIONZ!
-      // click-to-advance handlerz
       this.addEventListener("click", (e) => {
         if (this._clickSuppressed) return;
         const rect = this.getBoundingClientRect();
@@ -250,12 +263,11 @@ class PeeDeeEff extends HTMLElement {
         }
       });
 
-      // be aggressive about preventing overscroll.
       window.addEventListener(
         "wheel",
         (e) => {
           if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-            e.preventDefault(); // block overscroll
+            e.preventDefault();
           }
         },
         { passive: false },
@@ -283,8 +295,10 @@ class PeeDeeEff extends HTMLElement {
         const idx = this.index + j;
         if (idx < this.images.length) {
           const img = document.createElement("img");
-          img.src = this.images[idx];
           img.alt = `page ${idx}`;
+          img.loading = "lazy";
+          img.dataset.src = this.images[idx];
+          this._observer.observe(img);
           this.viewer.appendChild(img);
         }
       }
