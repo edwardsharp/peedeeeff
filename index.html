@@ -229,11 +229,14 @@
                 color: black;
                 margin: 0rem;
                 height: 10px;
+                max-width: 70px;
+                border-radius: 0px;
             }
             input[type="radio"].vertical {
                 width: 10px;
                 height: 50px;
                 margin-top: 5px;
+                margin-bottom: -2px;
             }
             input[type="radio"]:checked {
                 appearance: none;
@@ -341,7 +344,6 @@
                                 step="1"
                             />
                         </div>
-                        <small>pagez shown per view (grid layout adaptz)</small>
                     </label>
                     <!-- deal with these :/ -->
                     <!-- <label>
@@ -357,7 +359,6 @@
                     <label>
                         <pre>background</pre>
                         <input type="text" name="background" value="white" />
-                        <small>color behind each image</small>
                     </label>
                 </form>
             </div>
@@ -479,7 +480,7 @@
                 navTimeout = setTimeout(() => {
                     navToggle.style.opacity = "0";
                     navToggle.style.pointerEvents = "none";
-                }, 3145);
+                }, 500);
             }
 
             document.addEventListener("mousemove", resetNavVisibility);
