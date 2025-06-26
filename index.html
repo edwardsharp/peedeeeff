@@ -616,6 +616,7 @@
 
             toggle.addEventListener("click", () => {
                 toggleNav();
+                updateZineCacheStatus();
             });
 
             tabs.forEach((tab) => {
@@ -626,6 +627,8 @@
                     document
                         .getElementById("panel-" + tab.dataset.tab)
                         .classList.add("active");
+
+                    updateZineCacheStatus();
 
                     // refresh cache info when CACHE tab is opened
                     if (
