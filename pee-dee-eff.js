@@ -13,7 +13,7 @@ class PeeDeeEff extends HTMLElement {
     this.loop = this.getAttribute("loop") === "true";
     this.firstLastSingle = this.getAttribute("1up-first-and-last") === "true";
     const direction = this.getAttribute("direction") || "horizontal";
-    const basePath = this.getAttribute("base-path") || ".";
+    this.basePath = this.getAttribute("base-path") || ".";
     const pagesPerView = this.hasAttribute("pages-per-view")
       ? parseInt(this.getAttribute("pages-per-view"))
       : 2;
@@ -107,7 +107,8 @@ class PeeDeeEff extends HTMLElement {
       let i = 0;
       while (true) {
         const num = String(i).padStart(3, "0");
-        const src = `${basePath}/page-${num}.webp`;
+        console.log("ZOMG BASE PATH:", this.basePath);
+        const src = `${this.basePath}/page-${num}.webp`;
         try {
           await tryLoadImage(src);
           tempImages.push(src);
@@ -116,7 +117,11 @@ class PeeDeeEff extends HTMLElement {
           break;
         }
       }
-      this.images = tempImages;
+      const getIndex = (s) => {
+        const match = s.match(/page-(\d+)\.webp$/);
+        return match ? parseInt(match[1], 10) : -1;
+      };
+      this.images = tempImages.sort((a, b) => getIndex(a) - getIndex(b));
     };
 
     preloadImages().then(() => {
@@ -136,15 +141,14 @@ class PeeDeeEff extends HTMLElement {
 
         this.images.forEach((src, i) => {
           const img = document.createElement("img");
-          img.dataset.src = src;
           img.alt = `page ${i}`;
-          img.loading = "lazy";
-          // scrollContainer.appendChild(img);
 
-          // so immediately load the first image
           if (i === 0) {
             img.src = src;
-            // img.removeAttribute("data-src");
+            img.loading = "eager";
+          } else {
+            img.dataset.src = src;
+            img.loading = "lazy";
           }
           scrollContainer.appendChild(img);
         });
@@ -153,6 +157,7 @@ class PeeDeeEff extends HTMLElement {
           (entries) => {
             entries.forEach((entry) => {
               if (entry.isIntersecting && entry.target.dataset.src) {
+                console.log("Loading", entry.target.dataset.src);
                 entry.target.src = entry.target.dataset.src;
                 entry.target.removeAttribute("data-src");
                 lazyObserver.unobserve(entry.target);
@@ -162,6 +167,7 @@ class PeeDeeEff extends HTMLElement {
           { rootMargin: "200px" },
         );
 
+        /// hmm does this need to move?
         scrollContainer
           .querySelectorAll("img[data-src]")
           .forEach((img) => lazyObserver.observe(img));
@@ -184,6 +190,10 @@ class PeeDeeEff extends HTMLElement {
             );
           });
         }
+
+        requestAnimationFrame(() => {
+          scrollContainer.scrollTop = 0;
+        });
       } else {
         this.shadowRoot.innerHTML += `
           <button id="prev"><slot name="prev">&#x2039;</slot></button>
