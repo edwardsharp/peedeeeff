@@ -1,6 +1,28 @@
 const CACHE_NAME = "peedeeeff-cache-v2";
 const STATIC_CACHE_NAME = "peedeeeff-static-v2";
 
+// Conditional logging system
+function shouldLog() {
+  // Check localStorage first
+  const logSetting = self.localStorage?.getItem("peedeeeff-debug-log");
+  if (logSetting === "true") return true;
+  if (logSetting === "false") return false;
+
+  // Fallback to checking URL params (if available)
+  try {
+    const url = new URL(self.location);
+    return url.searchParams.get("log") === "on";
+  } catch {
+    return false;
+  }
+}
+
+function debugLog(...args) {
+  if (shouldLog()) {
+    console.log(...args);
+  }
+}
+
 // Static files to cache immediately - with GitHub Pages path detection
 function getStaticFiles() {
   const basePath = self.location.pathname.split("/").slice(0, -1).join("/");
@@ -28,9 +50,9 @@ self.addEventListener("install", (event) => {
     caches
       .open(STATIC_CACHE_NAME)
       .then((cache) => {
-        console.log("Service Worker: Caching static files:", STATIC_FILES);
+        debugLog("Service Worker: Caching static files:", STATIC_FILES);
         return cache.addAll(STATIC_FILES).catch((error) => {
-          console.error("Service Worker: Failed to cache static files:", error);
+          debugLog("Service Worker: Failed to cache static files:", error);
           // Continue anyway - don't let static file caching prevent SW installation
         });
       })
@@ -46,7 +68,7 @@ self.addEventListener("activate", (event) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
             if (cacheName !== CACHE_NAME && cacheName !== STATIC_CACHE_NAME) {
-              console.log("Service Worker: Deleting old cache", cacheName);
+              debugLog("Service Worker: Deleting old cache", cacheName);
               return caches.delete(cacheName);
             }
           }),
@@ -75,7 +97,7 @@ self.addEventListener("fetch", (event) => {
         // First try direct cache match
         const cachedResponse = await caches.match(request);
         if (cachedResponse) {
-          console.log("Service Worker: Serving from cache:", request.url);
+          debugLog("Service Worker: Serving from cache:", request.url);
           return cachedResponse;
         }
 
@@ -95,7 +117,7 @@ self.addEventListener("fetch", (event) => {
           if (altUrl && altUrl !== pathname) {
             const altCachedResponse = await cache.match(altUrl);
             if (altCachedResponse) {
-              console.log(
+              debugLog(
                 "Service Worker: Found in cache with alternative URL:",
                 altUrl,
               );
@@ -105,7 +127,7 @@ self.addEventListener("fetch", (event) => {
         }
 
         // If not in cache, try network
-        console.log("Service Worker: Fetching from network:", request.url);
+        debugLog("Service Worker: Fetching from network:", request.url);
         const response = await fetch(request);
 
         // don't cache if not a successful response
@@ -119,7 +141,7 @@ self.addEventListener("fetch", (event) => {
         // cache .webp images automagically
         if (request.url.includes(".webp")) {
           caches.open(CACHE_NAME).then((cache) => {
-            console.log("Service Worker: Auto-caching image:", request.url);
+            debugLog("Service Worker: Auto-caching image:", request.url);
             cache.put(request, responseToCache);
           });
         }
@@ -137,7 +159,7 @@ self.addEventListener("fetch", (event) => {
 
         // if network fails and we're looking for an image, return a placeholder
         if (request.url.includes(".webp")) {
-          console.log(
+          debugLog(
             "Service Worker: Network failed for image, no cached version available",
           );
         }
@@ -232,7 +254,7 @@ async function handleCacheImages(urls) {
 }
 
 async function handleClearCache() {
-  console.log("Service Worker: Clearing cache");
+  debugLog("Service Worker: Clearing cache");
   try {
     // clear both caches to be thorough
     const deleted1 = await caches.delete(CACHE_NAME);
@@ -242,10 +264,10 @@ async function handleClearCache() {
     const staticCache = await caches.open(STATIC_CACHE_NAME);
     await staticCache.addAll(STATIC_FILES);
 
-    console.log(
-      "service Worker: cache cleared successfully. image cache deleted:",
+    debugLog(
+      "Service Worker: Cache cleared successfully. Image cache deleted:",
       deleted1,
-      "static cache recreated",
+      "Static cache recreated",
     );
     return { deleted: deleted1, recreatedStatic: true };
   } catch (error) {
@@ -260,8 +282,8 @@ async function handleGetCacheStatus() {
     const keys = await cache.keys();
     const imageKeys = keys.filter((key) => key.url.includes(".webp"));
 
-    console.log(
-      "service Worker: cache status cha-check -",
+    debugLog(
+      "Service Worker: Cache status check -",
       imageKeys.length,
       "images found",
     );

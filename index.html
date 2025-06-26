@@ -31,6 +31,28 @@
         <title>pee-dee-eff tee-stt-trr</title>
         <script src="pee-dee-eff.js"></script>
         <script src="cache-manager.js"></script>
+        <script>
+            // Debug logging control
+            function initDebugLogging() {
+                const params = new URLSearchParams(window.location.search);
+                const logParam = params.get("log");
+
+                if (logParam === "on") {
+                    localStorage.setItem("peedeeeff-debug-log", "true");
+                } else if (logParam === "off") {
+                    localStorage.setItem("peedeeeff-debug-log", "false");
+                }
+            }
+
+            function debugLog(...args) {
+                const logSetting = localStorage.getItem("peedeeeff-debug-log");
+                if (logSetting === "true") {
+                    console.log(...args);
+                }
+            }
+
+            initDebugLogging();
+        </script>
         <script id="paths-data" type="application/json">
             [
                 ["example/undoinganddoing", 6],
@@ -649,9 +671,9 @@
                 // if no saved settings, use responsive defaults
                 if (!settings) {
                     settings = getResponsiveDefaults();
-                    console.log("using responsive defaults:", settings);
+                    debugLog("Using responsive defaults:", settings);
                 } else {
-                    console.log("loaded yr saved settings:", settings);
+                    debugLog("Loaded saved settings:", settings);
                 }
 
                 // apply the settings to form controls
@@ -860,7 +882,7 @@
                     // update zine cache status indicators
                     await updateZineCacheStatus();
                 } catch (error) {
-                    console.error("Failed to get cache status:", error);
+                    debugLog("Failed to get cache status:", error);
                     cacheInfo.textContent = "service worker unavailable";
                 }
             }
@@ -928,7 +950,7 @@
                         }
                     });
                 } catch (error) {
-                    console.error("oopz, cache operation failed:", error);
+                    debugLog("Cache operation failed:", error);
                     cacheProgress.textContent = `error: ${error.message}`;
                     cacheCurrent.textContent = "";
                 } finally {
@@ -959,7 +981,7 @@
                         updateCacheStatus();
                     }, 2000);
                 } catch (error) {
-                    console.error("eek! cache clear failed:", error);
+                    debugLog("Cache clear failed:", error);
                     cacheProgress.textContent = `error: ${error.message}`;
                     cacheCurrent.textContent = "";
                 } finally {
@@ -984,7 +1006,7 @@
                 }
 
                 try {
-                    const cache = await caches.open("peedeeeff-cache-v1");
+                    const cache = await caches.open("peedeeeff-cache-v2");
                     const cachedRequests = await cache.keys();
                     const cachedUrls = cachedRequests.map((req) => req.url);
 
@@ -1012,7 +1034,7 @@
                         }
                     });
                 } catch (error) {
-                    console.warn("failed to check zine cache status:", error);
+                    debugLog("failed to check zine cache status:", error);
                     // fallback: try to preserve existing cached indicators
                 }
             }
