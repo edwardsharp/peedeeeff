@@ -5,13 +5,19 @@ const STATIC_CACHE_NAME = "peedeeeff-static-v1";
 function getStaticFiles() {
   const basePath = self.location.pathname.split("/").slice(0, -1).join("/");
   const files = [
+    "", // Root path for index.html
     "index.html",
     "pee-dee-eff.js",
     "cache-manager.js",
     "really-simple.html",
   ];
 
-  return files.map((file) => (basePath ? `${basePath}/${file}` : `/${file}`));
+  return files.map((file) => {
+    if (file === "") {
+      return basePath || "/";
+    }
+    return basePath ? `${basePath}/${file}` : `/${file}`;
+  });
 }
 
 const STATIC_FILES = getStaticFiles();
@@ -118,10 +124,17 @@ self.addEventListener("fetch", (event) => {
           return response;
         })
         .catch(() => {
-          // onoz! #TODO return a placeholder?
+          // For HTML pages, try to serve index.html from cache as fallback
+          if (request.mode === "navigate") {
+            return caches.open(STATIC_CACHE_NAME).then((cache) => {
+              return cache.match("index.html");
+            });
+          }
+
+          // if network fails and we're looking for an image, return a placeholder
           if (request.url.includes(".webp")) {
             console.log(
-              "service Worker: Network failed for image, no cached version available",
+              "Service Worker: Network failed for image, no cached version available",
             );
           }
           throw new Error("network failed and no cached version available");
