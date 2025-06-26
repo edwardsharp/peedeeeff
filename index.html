@@ -548,6 +548,8 @@
                 // apply base-path (saved zine selection)
                 if (settings["base-path"]) {
                     currentBasePath = settings["base-path"];
+                    // update the viewer with the restored base-path
+                    updateViewer(settings);
                 }
 
                 // apply pages-per-view
