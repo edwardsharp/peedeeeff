@@ -62,22 +62,11 @@ if u wanna use this, copy `pee-dee-eff.js` to where ever you host yr other stuff
 
 ### generating icons & favicon
 
-the app includes an svg icon, but for better pwa support you may want png icons:
+a lil' icon generator:
 
-1. open `generate-icons.html` in your browser
-2. click the download buttons to get `icon-192.png` and `icon-512.png`
-3. update `manifest.json` to reference the png files instead of the svg
-
-for the favicon:
-
-1. open `generate-favicon.html` in your browser 🥹
-2. preview different sizes (16x16, 32x32, 48x48)
-3. download `favicon.ico` and png variants
-4. the favicon uses "p" for 16px, "pdf" for 32px, and "pee/dee/eff" for larger sizes
-
-for immediate use, `favicon-data-url.js` creates a data url favicon that can be applied instantly.
-
-alternatively, use the `create-icon.js` script in a browser console to generate data urls.
+1. open `generate-icons.html`
+2. open `generate-favicon.html`
+2. download png and favicon! 🥹
 
 ---
 made with 💖 in nyc
