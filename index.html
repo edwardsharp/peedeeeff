@@ -200,6 +200,7 @@
                 display: none;
                 flex-direction: column;
                 border: thick solid magenta;
+                z-index: 2;
             }
             #nav-toggle {
                 position: absolute;
@@ -213,6 +214,7 @@
                 font-weight: bold;
                 text-align: center;
                 transition: opacity 0.4s ease;
+                z-index: 2;
             }
             #nav-toggle:hover,
             button:hover,
@@ -441,16 +443,16 @@
                         </div>
                     </label>
                     <!-- deal with these :/ -->
-                    <!-- <label>
+                    <label>
                         <pre>loop</pre>
                         <input type="checkbox" name="loop" />
                         <small>loop from end to start</small>
                     </label>
                     <label>
-                        <pre>1up-first-and-last</pre>
-                        <input type="checkbox" name="1up-first-and-last" />
+                        <pre>first-last-single</pre>
+                        <input type="checkbox" name="first-last-single" />
                         <small>show first/last slides 1-up</small>
-                    </label> -->
+                    </label>
                     <label>
                         <pre>background</pre>
                         <input type="text" name="background" value="white" />
@@ -517,7 +519,7 @@
                     : {};
                 for (const [key, value] of data.entries()) {
                     if (key === "pages-per-view") props[key] = value;
-                    else if (key === "loop" || key === "1up-first-and-last")
+                    else if (key === "loop" || key === "first-last-single")
                         props[key] = true;
                     else props[key] = value;
                 }
@@ -598,7 +600,7 @@
                 }
 
                 // apply other checkboxes if they exist
-                ["loop", "1up-first-and-last"].forEach((key) => {
+                ["loop", "first-last-single"].forEach((key) => {
                     if (settings[key]) {
                         const checkbox = form.querySelector(
                             `input[name="${key}"]`,

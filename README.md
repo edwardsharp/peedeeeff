@@ -21,24 +21,15 @@ note: .webp images need to follow format `page-000.web` (where 000 is the page n
 if u wanna use this, copy `pee-dee-eff.js` to where ever you host yr other stuff. then on whatever page include the web-component tag and a `<script />` (u could just copy/paste pee-dee-eff.js and inline it in a `<script>` on yr page) like:
 
 ```html
-
 <pee-dee-eff
     base-path="example/undoinganddoing"
     pages-per-view="4"
     direction="horizontal"
     loop="true"
-    1up-first-and-last="false"
+    first-last-single="false"
     background="black"
 >
-    <div
-        class="scroll-message"
-        slot="scroll-message"
-        title="i'm scrollin' ovah heeeere!"
-    >
-        scroll down 👇
-    </div>
 </pee-dee-eff>
-
 
 <script src="pee-dee-eff.js"></script>
 ```
@@ -51,7 +42,7 @@ if u wanna use this, copy `pee-dee-eff.js` to where ever you host yr other stuff
 | `pages-per-view`     | `number`  | `1`, `2`, `4`, `6`, etc.          | `2`            | no       | number of images shown per slide. determines the grid layout automatically.              |
 | `direction`          | `string`  | `"horizontal"`, `"vertical"`      | `"horizontal"` | no       | chooses between swipe-to-slide and scroll-down-to-browse modes.                          |
 | `loop`               | `boolean` | `"true"`                          | `false`        | no       | whether to loop back to the first slide after the last one, and vice versa.              |
-| `1up-first-and-last` | `boolean` | `"true"`                          | `false`        | no       | not currently used in logic, but may be intended for showing single pages at start/end.  |
+| `first-last-single` | `boolean` | `"true"`                          | `false`        | no       | not currently used in logic, but may be intended for showing single pages at start/end.  |
 | `background`         | `string`  | `"white"`, `"#eeddee"`, `"black"` | `"white"`      | no       | background color of each image cell in the grid.                                         |
 
 ### pwa && cache

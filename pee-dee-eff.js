@@ -4,20 +4,21 @@ class PeeDeeEff extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this.images = [];
     this.index = 0;
-    this.SCROLL_HIDE_THRESHOLD = 150;
     this._clickSuppressed = false;
     this._observer = null;
+    this.NAV_BUTTON_HIDE_AFTER_MS = 1234;
   }
 
   connectedCallback() {
     const bg = this.getAttribute("background") || "white";
     this.loop = this.getAttribute("loop") === "true";
-    this.firstLastSingle = this.getAttribute("1up-first-and-last") === "true";
+    this.firstLastSingle = this.getAttribute("first-last-single") === "true";
     const direction = this.getAttribute("direction") || "horizontal";
     this.basePath = this.getAttribute("base-path") || ".";
     const pagesPerView = this.hasAttribute("pages-per-view")
       ? parseInt(this.getAttribute("pages-per-view"))
       : 2;
+
     this.index = 0;
     this.images = [];
     let gridCols = Math.ceil(Math.sqrt(pagesPerView));
@@ -32,6 +33,7 @@ class PeeDeeEff extends HTMLElement {
         display: block;
         width: 100%;
         height: 100%;
+        position: relative;
       }
       .scroll-container, .viewer {
         display: grid;
@@ -155,12 +157,44 @@ class PeeDeeEff extends HTMLElement {
         this.prevBtn = this.shadowRoot.querySelector("#prev");
         this.nextBtn = this.shadowRoot.querySelector("#next");
 
-        this.prevBtn.addEventListener("click", () =>
-          this.show(this.index - pagesPerView),
-        );
-        this.nextBtn.addEventListener("click", () =>
-          this.show(this.index + pagesPerView),
-        );
+        // handle showing the first, and last page as 1up
+        // but only in horizontal direction && when pagesPerView is 2
+        this.handleFirstLastSinglePrev = () => {
+          if (this.firstLastSingle && this.pagesPerView === 2) {
+            if (this.index === 1) {
+              this.show(0);
+              return true;
+            } else if (this.index === this.images.length - 1) {
+              this.show(this.index - 2);
+              return true;
+            }
+          }
+          return false;
+        };
+        this.handleFirstLastSingleNext = () => {
+          if (this.firstLastSingle && this.pagesPerView === 2) {
+            if (this.index === 0) {
+              this.show(1);
+              return true;
+            } else if (this.index === this.images.length - 2) {
+              this.show(this.images.length - 1);
+              return true;
+            }
+          }
+          return false;
+        };
+
+        this.prevBtn.addEventListener("click", () => {
+          if (!this.handleFirstLastSinglePrev()) {
+            this.show(this.index - this.pagesPerView);
+          }
+        });
+
+        this.nextBtn.addEventListener("click", () => {
+          if (!this.handleFirstLastSingleNext()) {
+            this.show(this.index + this.pagesPerView);
+          }
+        });
         window.addEventListener("keydown", this.keyHandler);
 
         this.pagesPerView = pagesPerView;
@@ -179,9 +213,13 @@ class PeeDeeEff extends HTMLElement {
               e.preventDefault();
               lastScrollTime = now;
               if (e.deltaX > 0 || e.deltaY > 0) {
-                this.show(this.index + this.pagesPerView);
+                if (!this.handleFirstLastSingleNext()) {
+                  this.show(this.index + this.pagesPerView);
+                }
               } else {
-                this.show(this.index - this.pagesPerView);
+                if (!this.handleFirstLastSinglePrev()) {
+                  this.show(this.index - this.pagesPerView);
+                }
               }
             }
           },
@@ -199,8 +237,15 @@ class PeeDeeEff extends HTMLElement {
           const dx = x - startX;
           if (Math.abs(dx) > 50) {
             this._clickSuppressed = true;
-            if (dx < 0) this.show(this.index + this.pagesPerView);
-            else this.show(this.index - this.pagesPerView);
+            if (dx < 0) {
+              if (!this.handleFirstLastSingleNext()) {
+                this.show(this.index + this.pagesPerView);
+              }
+            } else {
+              if (!this.handleFirstLastSinglePrev()) {
+                this.show(this.index - this.pagesPerView);
+              }
+            }
           } else {
             this._clickSuppressed = false;
           }
@@ -244,7 +289,7 @@ class PeeDeeEff extends HTMLElement {
               btn.style.opacity = "0";
               btn.style.pointerEvents = "none";
             });
-          }, 1234);
+          }, this.NAV_BUTTON_HIDE_AFTER_MS);
         };
 
         this.addEventListener("mousemove", resetViewerButtonVisibility);
@@ -257,9 +302,13 @@ class PeeDeeEff extends HTMLElement {
         const rect = this.getBoundingClientRect();
         const x = e.clientX - rect.left;
         if (x < rect.width / 2) {
-          this.show(this.index - this.pagesPerView);
+          if (!this.handleFirstLastSinglePrev()) {
+            this.show(this.index - this.pagesPerView);
+          }
         } else {
-          this.show(this.index + this.pagesPerView);
+          if (!this.handleFirstLastSingleNext()) {
+            this.show(this.index + this.pagesPerView);
+          }
         }
       });
 
@@ -278,6 +327,18 @@ class PeeDeeEff extends HTMLElement {
   show(i) {
     if (!this.images.length) return;
 
+    // special navigation for firstLastSingle mode
+    if (this.firstLastSingle && this.pagesPerView === 2) {
+      if (this.index === 0 && i > 0) {
+        i = 1;
+      }
+
+      // special case: navigating backward from a late page to the last page
+      if (i >= this.images.length - 1 && this.index < this.images.length - 1) {
+        i = this.images.length - 1; // Position at exact last page
+      }
+    }
+
     if (i < 0) {
       if (this.loop) i = Math.max(0, this.images.length - this.pagesPerView);
       else return;
@@ -291,7 +352,32 @@ class PeeDeeEff extends HTMLElement {
 
     if (this.viewer) {
       this.viewer.innerHTML = "";
-      for (let j = 0; j < this.pagesPerView; j++) {
+
+      let pagesToShow = this.pagesPerView;
+
+      const isFirstPage = i === 0;
+      const isLastPage =
+        i === this.images.length - 1 ||
+        (i === this.images.length - 2 && this.pagesPerView === 2);
+
+      // do firstLastSingle logic if enabled
+      if (
+        this.firstLastSingle &&
+        this.pagesPerView === 2 &&
+        (isFirstPage || isLastPage)
+      ) {
+        pagesToShow = 1;
+        // need to update the grid layout for single page view
+        // and i guess center it, too
+        this.viewer.style.gridTemplateColumns = "1fr";
+        this.viewer.style.justifyItems = "center";
+      } else if (this.pagesPerView === 2) {
+        // reset to two-column grid when not on first/last page
+        this.viewer.style.gridTemplateColumns = "repeat(2, minmax(0, 1fr))";
+        this.viewer.style.justifyItems = "stretch";
+      }
+
+      for (let j = 0; j < pagesToShow; j++) {
         const idx = this.index + j;
         if (idx < this.images.length) {
           const img = document.createElement("img");
@@ -306,8 +392,15 @@ class PeeDeeEff extends HTMLElement {
   }
 
   keyHandler = (e) => {
-    if (e.key === "ArrowLeft") this.show(this.index - this.pagesPerView);
-    else if (e.key === "ArrowRight") this.show(this.index + this.pagesPerView);
+    if (e.key === "ArrowLeft") {
+      if (!this.handleFirstLastSinglePrev()) {
+        this.show(this.index - this.pagesPerView);
+      }
+    } else if (e.key === "ArrowRight") {
+      if (!this.handleFirstLastSingleNext()) {
+        this.show(this.index + this.pagesPerView);
+      }
+    }
   };
 }
 

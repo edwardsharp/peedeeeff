@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>PEE-DEE-EFF</title>
+        <style>
+            html,
+            body {
+                /* reset */
+                margin: 0;
+                padding: 0;
+                background: black;
+                color: white;
+
+                max-width: 100vw;
+            }
+
+            main {
+                /* it helps <pee-dee-eff /> if it's parent element has a height*/
+                height: 100dvh;
+            }
+
+            /* the "holy grail" grid */
+            body.layout {
+                width: 100%;
+
+                display: grid;
+                grid:
+                    "header header header" auto
+                    "leftSide body rightSide" 1fr
+                    "footer footer footer" auto
+                    / auto 1fr auto;
+                gap: 8px;
+            }
+
+            header {
+                grid-area: header;
+            }
+            nav.leftSide {
+                grid-area: leftSide;
+            }
+            main {
+                grid-area: body;
+            }
+            nav.rightSide {
+                grid-area: rightSide;
+            }
+            footer {
+                grid-area: footer;
+            }
+
+            /* fun backgroundz */
+            header,
+            footer {
+                background-color: black;
+                opacity: 0.8;
+                background-image:
+                    linear-gradient(135deg, magenta 25%, transparent 25%),
+                    linear-gradient(225deg, magenta 25%, transparent 25%),
+                    linear-gradient(45deg, magenta 25%, transparent 25%),
+                    linear-gradient(315deg, magenta 25%, black 25%);
+                background-position:
+                    10px 0,
+                    10px 0,
+                    0 0,
+                    0 0;
+                background-size: 20px 20px;
+                background-repeat: repeat;
+            }
+
+            nav.leftSide {
+                background-color: black;
+                opacity: 0.8;
+                background: repeating-linear-gradient(
+                    45deg,
+                    magenta,
+                    magenta 5px,
+                    black 5px,
+                    black 25px
+                );
+            }
+            nav.rightSide {
+                background-color: black;
+                opacity: 0.8;
+                background: repeating-linear-gradient(
+                    -45deg,
+                    magenta,
+                    magenta 5px,
+                    black 5px,
+                    black 25px
+                );
+            }
+
+            header,
+            footer {
+                display: flex;
+                justify-content: center;
+            }
+
+            p {
+                background: black;
+                color: magenta;
+                width: max-content;
+                font-size: 2rem;
+                padding: 16px 32px;
+            }
+        </style>
+        <script src="pee-dee-eff.js"></script>
+    </head>
+    <body class="layout">
+        <header class="header"><p>H E A D E R</p></header>
+        <nav class="leftSide"><p>L E F T - N A V</p></nav>
+        <main class="body">
+            <pee-dee-eff
+                base-path="example/undoinganddoing"
+                direction="horizontal"
+                pages-per-view="2"
+                first-last-single="true"
+            />
+        </main>
+        <nav class="rightSide"><p>R I G H T - N A V</p></nav>
+        <footer><p>F O O T E R</p></footer>
+    </body>
+</html>
