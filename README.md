@@ -2,6 +2,8 @@
 
 just a lil' pdf -> webp converter & carousel web-component for viewing!
 
+ ![P E E  D E E  E F F](icon.png)
+
 ## quickstart
 
 open `index.html` in your browser! get a handle on the different view options by fiddle'n with the controlz.

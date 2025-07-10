@@ -1,0 +1,29 @@
+{
+  "name": "pee-dee-eff",
+  "version": "0.0.1",
+  "description": "just a lil' pdf -> webp converter & carousel web-component viewer",
+  "homepage": "https://github.com/edwardsharp/peedeeeff#readme",
+  "bugs": {
+    "url": "https://github.com/edwardsharp/peedeeeff/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edwardsharp/peedeeeff.git"
+  },
+  "license": "MIT",
+  "author": "edwardsharp",
+  "type": "module",
+  "main": "pee-dee-eff.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "files": [
+    "pee-dee-eff.js",
+    "pdf2webp.sh",
+    "count-webp-filez.sh",
+    "icon.png"
+  ]
+}
