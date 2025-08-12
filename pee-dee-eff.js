@@ -167,6 +167,13 @@ class PeeDeeEff extends HTMLElement {
             } else if (this.index === this.images.length - 1) {
               this.show(this.index - 2);
               return true;
+            } else if (
+              this.index === this.images.length - 2 &&
+              this.images.length % 2 === 1
+            ) {
+              // odd number of pagez show last 2up
+              this.show(this.index - 2);
+              return true;
             }
           }
           return false;
@@ -177,20 +184,28 @@ class PeeDeeEff extends HTMLElement {
               this.show(1);
               return true;
             } else if (this.index === this.images.length - 2) {
-              this.show(this.images.length - 1);
-              return true;
+              // odd number of pagez, show last 2up
+              if (this.images.length % 2 === 1) {
+                this.show(this.images.length - 2);
+                return true;
+              } else {
+                this.show(this.images.length - 1);
+                return true;
+              }
             }
           }
           return false;
         };
 
-        this.prevBtn.addEventListener("click", () => {
+        this.prevBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
           if (!this.handleFirstLastSinglePrev()) {
             this.show(this.index - this.pagesPerView);
           }
         });
 
-        this.nextBtn.addEventListener("click", () => {
+        this.nextBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
           if (!this.handleFirstLastSingleNext()) {
             this.show(this.index + this.pagesPerView);
           }
@@ -299,6 +314,7 @@ class PeeDeeEff extends HTMLElement {
 
       this.addEventListener("click", (e) => {
         if (this._clickSuppressed) return;
+
         const rect = this.getBoundingClientRect();
         const x = e.clientX - rect.left;
         if (x < rect.width / 2) {
@@ -358,7 +374,9 @@ class PeeDeeEff extends HTMLElement {
       const isFirstPage = i === 0;
       const isLastPage =
         i === this.images.length - 1 ||
-        (i === this.images.length - 2 && this.pagesPerView === 2);
+        (i === this.images.length - 2 &&
+          this.pagesPerView === 2 &&
+          this.images.length % 2 === 0);
 
       // do firstLastSingle logic if enabled
       if (

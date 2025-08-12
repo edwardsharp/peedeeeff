@@ -1,6 +1,6 @@
 {
   "name": "@edwardsharp/pee-dee-eff",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "just a lil' pdf -> webp converter & carousel web-component viewer",
   "homepage": "https://github.com/edwardsharp/peedeeeff#readme",
   "bugs": {
@@ -18,7 +18,7 @@
     "example": "example"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "python3 -m http.server 8008"
   },
   "files": [
     "pee-dee-eff.js",
