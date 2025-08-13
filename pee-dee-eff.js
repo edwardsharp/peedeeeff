@@ -366,6 +366,8 @@ class PeeDeeEff extends HTMLElement {
 
     this.index = i;
 
+    this.updateButtonVisibility();
+
     if (this.viewer) {
       this.viewer.innerHTML = "";
 
@@ -407,6 +409,45 @@ class PeeDeeEff extends HTMLElement {
         }
       }
     }
+  }
+
+  updateButtonVisibility() {
+    if (!this.prevBtn || !this.nextBtn) return;
+
+    if (this.loop) {
+      this.prevBtn.style.display = "block";
+      this.nextBtn.style.display = "block";
+      return;
+    }
+
+    // check if prev available
+    const canGoPrev = this.index > 0;
+    this.prevBtn.style.display = canGoPrev ? "block" : "none";
+
+    // check if next available
+    let canGoNext = false;
+    if (this.firstLastSingle && this.pagesPerView === 2) {
+      // first-last-single mode logic
+      if (this.index === 0) {
+        canGoNext = this.images.length > 1;
+      } else if (this.index === this.images.length - 1) {
+        canGoNext = false;
+      } else if (
+        this.index === this.images.length - 2 &&
+        this.images.length % 2 === 1
+      ) {
+        // last two pages together for odd total
+        canGoNext = false;
+      } else if (this.index === this.images.length - 2) {
+        canGoNext = true; // can go to last single page
+      } else {
+        canGoNext = this.index + this.pagesPerView < this.images.length;
+      }
+    } else {
+      canGoNext = this.index + this.pagesPerView < this.images.length;
+    }
+
+    this.nextBtn.style.display = canGoNext ? "block" : "none";
   }
 
   keyHandler = (e) => {
