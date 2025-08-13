@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>PEE-DEE-EFF</title>
+        <style>
+            html,
+            body {
+                /* reset */
+                margin: 0;
+                padding: 0;
+                /* it helps <pee-dee-eff /> if it's parent element has a height*/
+                height: 100dvh;
+                width: 100vw;
+                font-family: sans-serif;
+            }
+
+            pee-dee-eff {
+                width: 100%;
+                height: 100dvh;
+            }
+            .pagination {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: rgba(255, 255, 255, 0.9);
+                padding: 10px;
+                border-radius: 5px;
+                font-size: 18px;
+                font-weight: bold;
+                z-index: 10;
+            }
+            #currentPages {
+                display: inline;
+                color: #e91e63;
+            }
+            #totalPages {
+                display: inline;
+                color: #333;
+            }
+        </style>
+    </head>
+    <body>
+        <pee-dee-eff
+            base-path="example/test-odd"
+            pages-per-view="2"
+            first-last-single="true"
+        >
+            <div class="pagination" slot="pagination">
+                <span id="currentPages">?</span> /
+                <span id="totalPages">?</span>
+            </div>
+        </pee-dee-eff>
+
+        <script src="pee-dee-eff.js"></script>
+    </body>
+</html>

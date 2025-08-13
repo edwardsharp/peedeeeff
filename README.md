@@ -44,8 +44,28 @@ if u wanna use this, copy `pee-dee-eff.js` to where ever you host yr other stuff
 | `pages-per-view`     | `number`  | `1`, `2`, `4`, `6`, etc.          | `2`            | no       | number of images shown per slide. determines the grid layout automatically.              |
 | `direction`          | `string`  | `"horizontal"`, `"vertical"`      | `"horizontal"` | no       | chooses between swipe-to-slide and scroll-down-to-browse modes.                          |
 | `loop`               | `boolean` | `"true"`                          | `false`        | no       | whether to loop back to the first slide after the last one, and vice versa.              |
-| `first-last-single` | `boolean` | `"true"`                          | `false`        | no       | not currently used in logic, but may be intended for showing single pages at start/end.  |
+| `first-last-single`  | `boolean` | `"true"`                          | `false`        | no       | shows first and last pages on a single slide (only with pages-per-view=2).               |
+| `wheel-navigation`   | `boolean` | `"true"`, `"false"`               | `"true"`       | no       | enables mouse wheel and trackpad scrolling for page navigation.                          |
 | `background`         | `string`  | `"white"`, `"#eeddee"`, `"black"` | `"white"`      | no       | background color of each image cell in the grid.                                         |
+
+### web component slot for pagination
+
+want to show current and (or) total pages? add a slot as children and apply styles as you wish.
+
+```html
+<pee-dee-eff
+    base-path="example/test-even"
+    pages-per-view="2"
+    first-last-single="true"
+>
+  <div class="pagination" slot="pagination">
+    <span id="currentPages">?</span> /
+    <span id="totalPages">?</span>
+  </div>
+</pee-dee-eff>
+```
+
+see also: [test-pagination.html](test-pagination.html)
 
 ### pwa && cache
 

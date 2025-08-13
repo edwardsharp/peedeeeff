@@ -13,6 +13,7 @@ class PeeDeeEff extends HTMLElement {
     const bg = this.getAttribute("background") || "white";
     this.loop = this.getAttribute("loop") === "true";
     this.firstLastSingle = this.getAttribute("first-last-single") === "true";
+    this.wheelNavigation = this.getAttribute("wheel-navigation") !== "false";
     const direction = this.getAttribute("direction") || "horizontal";
     this.basePath = this.getAttribute("base-path") || ".";
     const pagesPerView = this.hasAttribute("pages-per-view")
@@ -151,7 +152,8 @@ class PeeDeeEff extends HTMLElement {
         this.shadowRoot.innerHTML += `
           <button id="prev"><slot name="prev">&#x2039;</slot></button>
           <div class="viewer"></div>
-          <button id="next"><slot name="next">&#x203a;</slot></button>`;
+          <button id="next"><slot name="next">&#x203a;</slot></button>
+          <slot name="pagination"></slot>`;
 
         this.viewer = this.shadowRoot.querySelector(".viewer");
         this.prevBtn = this.shadowRoot.querySelector("#prev");
@@ -215,31 +217,33 @@ class PeeDeeEff extends HTMLElement {
         this.pagesPerView = pagesPerView;
         this.show(0);
 
-        let lastScrollTime = 0;
-        const SCROLL_COOLDOWN = 500;
-        this.addEventListener(
-          "wheel",
-          (e) => {
-            const now = Date.now();
-            if (now - lastScrollTime < SCROLL_COOLDOWN) return;
+        if (this.wheelNavigation) {
+          let lastScrollTime = 0;
+          const SCROLL_COOLDOWN = 500;
+          this.addEventListener(
+            "wheel",
+            (e) => {
+              const now = Date.now();
+              if (now - lastScrollTime < SCROLL_COOLDOWN) return;
 
-            const combined = Math.abs(e.deltaX) + Math.abs(e.deltaY);
-            if (combined > 30) {
-              e.preventDefault();
-              lastScrollTime = now;
-              if (e.deltaX > 0 || e.deltaY > 0) {
-                if (!this.handleFirstLastSingleNext()) {
-                  this.show(this.index + this.pagesPerView);
-                }
-              } else {
-                if (!this.handleFirstLastSinglePrev()) {
-                  this.show(this.index - this.pagesPerView);
+              const combined = Math.abs(e.deltaX) + Math.abs(e.deltaY);
+              if (combined > 30) {
+                e.preventDefault();
+                lastScrollTime = now;
+                if (e.deltaX > 0 || e.deltaY > 0) {
+                  if (!this.handleFirstLastSingleNext()) {
+                    this.show(this.index + this.pagesPerView);
+                  }
+                } else {
+                  if (!this.handleFirstLastSinglePrev()) {
+                    this.show(this.index - this.pagesPerView);
+                  }
                 }
               }
-            }
-          },
-          { passive: false },
-        );
+            },
+            { passive: false },
+          );
+        }
 
         let startX = null;
 
@@ -328,15 +332,17 @@ class PeeDeeEff extends HTMLElement {
         }
       });
 
-      window.addEventListener(
-        "wheel",
-        (e) => {
-          if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-            e.preventDefault();
-          }
-        },
-        { passive: false },
-      );
+      if (this.wheelNavigation) {
+        window.addEventListener(
+          "wheel",
+          (e) => {
+            if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+              e.preventDefault();
+            }
+          },
+          { passive: false },
+        );
+      }
     });
   }
 
@@ -367,6 +373,7 @@ class PeeDeeEff extends HTMLElement {
     this.index = i;
 
     this.updateButtonVisibility();
+    this.updatePaginationSlots();
 
     if (this.viewer) {
       this.viewer.innerHTML = "";
@@ -448,6 +455,74 @@ class PeeDeeEff extends HTMLElement {
     }
 
     this.nextBtn.style.display = canGoNext ? "block" : "none";
+  }
+
+  updatePaginationSlots() {
+    // find elements in slotted content
+    const slot = this.shadowRoot.querySelector('slot[name="pagination"]');
+    if (!slot) return;
+
+    const assignedNodes = slot.assignedNodes({ flatten: true });
+    let currentPagesEl = null;
+    let totalPagesEl = null;
+
+    // search through assigned nodes for the pagination elements
+    assignedNodes.forEach((node) => {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        currentPagesEl = currentPagesEl || node.querySelector("#currentPages");
+        totalPagesEl = totalPagesEl || node.querySelector("#totalPages");
+        // check if the node itself has the ids
+        if (node.id === "currentPages") currentPagesEl = node;
+        if (node.id === "totalPages") totalPagesEl = node;
+      }
+    });
+
+    if (currentPagesEl) {
+      let currentPages = "";
+      if (this.firstLastSingle && this.pagesPerView === 2) {
+        // first-last-single mode pagination
+        if (this.index === 0) {
+          currentPages = "1";
+        } else if (this.index === this.images.length - 1) {
+          currentPages = String(this.images.length);
+        } else if (
+          this.index === this.images.length - 2 &&
+          this.images.length % 2 === 1
+        ) {
+          // last two pages together for odd total
+          currentPages = `${this.images.length - 1}-${this.images.length}`;
+        } else {
+          // regular two-page spread
+          const start = this.index + 1;
+          const end = Math.min(
+            this.index + this.pagesPerView,
+            this.images.length,
+          );
+          if (start === end) {
+            currentPages = String(start);
+          } else {
+            currentPages = `${start}-${end}`;
+          }
+        }
+      } else {
+        // regular pagination
+        const start = this.index + 1;
+        const end = Math.min(
+          this.index + this.pagesPerView,
+          this.images.length,
+        );
+        if (start === end) {
+          currentPages = String(start);
+        } else {
+          currentPages = `${start}-${end}`;
+        }
+      }
+      currentPagesEl.textContent = currentPages;
+    }
+
+    if (totalPagesEl) {
+      totalPagesEl.textContent = String(this.images.length);
+    }
   }
 
   keyHandler = (e) => {
